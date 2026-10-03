@@ -13,17 +13,17 @@ import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 
 /**
- * Controlla all'avvio, dopo la creazione di tutti i bean singleton, che la configurazione sia
- * coerente con le pipeline registrate come bean:
+ * Checks at startup, once all singleton beans have been created, that the configuration is
+ * consistent with the pipelines registered as beans:
  *
  * <ul>
- *   <li>due bean {@link Pipeline} non possono avere lo stesso nome (sempre bloccante);</li>
- *   <li>ogni voce di {@code pipeline.disabled-steps} deve riferirsi a una pipeline e a uno step
- *       esistenti (bloccante se {@code pipeline.fail-on-unknown-steps=true}, altrimenti WARN).</li>
+ *   <li>two {@link Pipeline} beans cannot have the same name (always fatal);</li>
+ *   <li>every entry of {@code pipeline.disabled-steps} must refer to an existing pipeline and
+ *       step (fatal if {@code pipeline.fail-on-unknown-steps=true}, otherwise a WARN).</li>
  * </ul>
  *
- * <p>Sono validate solo le pipeline registrate come bean: una pipeline costruita dentro un
- * costruttore o un metodo non è visibile al validatore.
+ * <p>Only pipelines registered as beans are validated: a pipeline built inside a constructor or
+ * a method is not visible to the validator.
  */
 public class PipelineDefinitionsValidator implements SmartInitializingSingleton {
 
@@ -33,10 +33,10 @@ public class PipelineDefinitionsValidator implements SmartInitializingSingleton 
     private final PipelineProperties properties;
 
     /**
-     * Crea il validatore.
+     * Creates the validator.
      *
-     * @param beanFactory bean factory da cui leggere i bean {@link Pipeline}
-     * @param properties  configurazione delle pipeline
+     * @param beanFactory the bean factory from which the {@link Pipeline} beans are read
+     * @param properties  the pipeline configuration
      */
     public PipelineDefinitionsValidator(ListableBeanFactory beanFactory, PipelineProperties properties) {
         this.beanFactory = Objects.requireNonNull(beanFactory, "beanFactory must not be null");
@@ -44,12 +44,12 @@ public class PipelineDefinitionsValidator implements SmartInitializingSingleton 
     }
 
     /**
-     * Esegue la validazione, raccogliendo tutti i problemi prima di segnalarli.
+     * Runs the validation, collecting all problems before reporting them.
      *
-     * @throws PipelineConfigurationException se una voce di {@code disabled-steps} è malformata,
-     *                                        se esistono nomi di pipeline duplicati, oppure se
-     *                                        esistono voci sconosciute e
-     *                                        {@code fail-on-unknown-steps} è {@code true}
+     * @throws PipelineConfigurationException if an entry of {@code disabled-steps} is malformed,
+     *                                        if there are duplicate pipeline names, or if there
+     *                                        are unknown entries and
+     *                                        {@code fail-on-unknown-steps} is {@code true}
      */
     @Override
     public void afterSingletonsInstantiated() {

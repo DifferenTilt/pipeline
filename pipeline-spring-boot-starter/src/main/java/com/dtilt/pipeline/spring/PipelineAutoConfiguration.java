@@ -14,13 +14,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 
 /**
- * Auto-configuration di base: espone uno {@link StepActivation} costruito da
- * {@code pipeline.disabled-steps}, una {@link PipelineFactory} già collegata ad attivazione,
- * listener globali, policy di errore e {@link Clock}, e il {@link PipelineDefinitionsValidator}
- * che controlla la configurazione all'avvio.
+ * Base auto-configuration: exposes a {@link StepActivation} built from
+ * {@code pipeline.disabled-steps}, a {@link PipelineFactory} already wired to the activation,
+ * the global listeners, the error policy and the {@link Clock}, and the
+ * {@link PipelineDefinitionsValidator} that checks the configuration at startup.
  *
- * <p>{@code StepActivation}, {@code PipelineFactory} e {@code LoggingPipelineListener} vengono
- * creati solo se il progetto non definisce un proprio bean dello stesso tipo.
+ * <p>{@code StepActivation}, {@code PipelineFactory} and {@code LoggingPipelineListener} are
+ * only created if the project does not define its own bean of the same type.
  */
 @AutoConfiguration
 @EnableConfigurationProperties(PipelineProperties.class)

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-/** Configurazione, controller e advice condivisi dai test web. */
+/** Configuration, controller and advice shared by the web tests. */
 final class PipelineWebTestSupport {
 
     private PipelineWebTestSupport() {
@@ -26,7 +26,7 @@ final class PipelineWebTestSupport {
     static class WebMvcConfig {
     }
 
-    /** Controller che lancia l'eccezione richiesta dall'interno di una pipeline. */
+    /** A controller that throws the requested exception from inside a pipeline. */
     @RestController
     static class FailingController {
 
@@ -60,7 +60,7 @@ final class PipelineWebTestSupport {
         }
     }
 
-    /** Advice del progetto senza {@code @Order}, con un catch-all su {@code Exception}. */
+    /** A project advice without {@code @Order}, with a catch-all on {@code Exception}. */
     @RestControllerAdvice
     static class CatchAllAdvice {
 

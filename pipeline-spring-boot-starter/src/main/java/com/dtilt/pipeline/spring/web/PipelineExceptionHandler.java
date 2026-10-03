@@ -17,16 +17,17 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Traduce le eccezioni della pipeline in risposte {@link ProblemDetail} (RFC 9457).
+ * Translates pipeline exceptions into {@link ProblemDetail} responses (RFC 9457).
  *
- * <p>Una {@link BusinessRuleException} diventa una risposta 4xx con il codice e i dettagli
- * dell'errore; una {@link StepExecutionException} diventa un 500 generico, senza esporre al
- * client messaggio, causa, pipeline o step, e viene loggata a livello {@code ERROR}.
+ * <p>A {@link BusinessRuleException} becomes a 4xx response with the error code and details; a
+ * {@link StepExecutionException} becomes a generic 500, without exposing the message, cause,
+ * pipeline or step to the client, and is logged at {@code ERROR}.
  *
- * <p>La classe è estendibile: un progetto personalizza la risposta sovrascrivendo i metodi
- * {@code protected} e registrando la sottoclasse come bean, che sostituisce quello di default.
- * L'ordine {@code LOWEST_PRECEDENCE - 100} fa sì che un advice del progetto senza {@code @Order}
- * con un catch-all su {@code Exception} non intercetti le eccezioni della pipeline.
+ * <p>The class can be extended: a project customises the response by overriding the
+ * {@code protected} methods and registering the subclass as a bean, which replaces the default
+ * one. The {@code LOWEST_PRECEDENCE - 100} order means that a project advice without
+ * {@code @Order} and with a catch-all on {@code Exception} does not intercept pipeline
+ * exceptions.
  */
 @RestControllerAdvice
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
@@ -38,11 +39,11 @@ public class PipelineExceptionHandler {
     private final Map<BusinessRuleException.Category, HttpStatusCode> statusByCategory;
 
     /**
-     * Crea l'handler.
+     * Creates the handler.
      *
-     * @param properties configurazione della gestione HTTP degli errori
-     * @throws PipelineConfigurationException se {@code pipeline.web.status-mapping} contiene uno
-     *                                        status fuori dall'intervallo 400-599
+     * @param properties the configuration of HTTP error handling
+     * @throws PipelineConfigurationException if {@code pipeline.web.status-mapping} contains a
+     *                                        status outside the 400-599 range
      */
     public PipelineExceptionHandler(PipelineWebProperties properties) {
         Objects.requireNonNull(properties, "properties must not be null");
@@ -62,10 +63,10 @@ public class PipelineExceptionHandler {
     }
 
     /**
-     * Gestisce un errore di business atteso. Non viene loggato.
+     * Handles an expected business error. It is not logged.
      *
-     * @param e eccezione lanciata dalla pipeline
-     * @return la risposta costruita da {@link #businessProblem(BusinessRuleException)}
+     * @param e the exception thrown by the pipeline
+     * @return the response built by {@link #businessProblem(BusinessRuleException)}
      */
     @ExceptionHandler(BusinessRuleException.class)
     public ProblemDetail handleBusinessRule(BusinessRuleException e) {
@@ -73,11 +74,11 @@ public class PipelineExceptionHandler {
     }
 
     /**
-     * Gestisce un errore tecnico inatteso: lo logga a livello {@code ERROR}, con pipeline, step e
-     * stack trace, e restituisce una risposta generica.
+     * Handles an unexpected technical error: logs it at {@code ERROR}, with pipeline, step and
+     * stack trace, and returns a generic response.
      *
-     * @param e eccezione lanciata dalla pipeline
-     * @return la risposta costruita da {@link #technicalProblem(StepExecutionException)}
+     * @param e the exception thrown by the pipeline
+     * @return the response built by {@link #technicalProblem(StepExecutionException)}
      */
     @ExceptionHandler(StepExecutionException.class)
     public ProblemDetail handleStepExecution(StepExecutionException e) {
@@ -86,23 +87,23 @@ public class PipelineExceptionHandler {
     }
 
     /**
-     * Status HTTP per una categoria di errore di business: quello configurato in
-     * {@code pipeline.web.status-mapping}, altrimenti il default (400, 403, 404, 409).
+     * The HTTP status for a business error category: the one configured in
+     * {@code pipeline.web.status-mapping}, otherwise the default (400, 403, 404, 409).
      *
-     * @param category categoria dell'errore
-     * @return lo status HTTP della risposta
+     * @param category the error category
+     * @return the HTTP status of the response
      */
     protected HttpStatusCode statusFor(BusinessRuleException.Category category) {
         return statusByCategory.get(category);
     }
 
     /**
-     * Costruisce la risposta per un errore di business: status dalla categoria, {@code detail}
-     * dal messaggio, property {@code code}, {@code details} se non vuota e, se
-     * {@code pipeline.web.include-location=true}, {@code pipeline} e {@code step}.
+     * Builds the response for a business error: status from the category, {@code detail} from
+     * the message, the {@code code} property, {@code details} when not empty and, if
+     * {@code pipeline.web.include-location=true}, {@code pipeline} and {@code step}.
      *
-     * @param e eccezione lanciata dalla pipeline
-     * @return la risposta di errore
+     * @param e the exception thrown by the pipeline
+     * @return the error response
      */
     protected ProblemDetail businessProblem(BusinessRuleException e) {
         HttpStatusCode status = statusFor(e.getCategory());
@@ -127,11 +128,11 @@ public class PipelineExceptionHandler {
     }
 
     /**
-     * Costruisce la risposta generica per un errore tecnico: 500, senza alcun dettaglio
-     * dell'eccezione.
+     * Builds the generic response for a technical error: 500, without any detail of the
+     * exception.
      *
-     * @param e eccezione lanciata dalla pipeline
-     * @return la risposta di errore
+     * @param e the exception thrown by the pipeline
+     * @return the error response
      */
     protected ProblemDetail technicalProblem(StepExecutionException e) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(

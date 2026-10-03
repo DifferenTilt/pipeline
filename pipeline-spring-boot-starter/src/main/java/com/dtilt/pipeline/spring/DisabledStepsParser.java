@@ -10,8 +10,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Converte le voci di {@code pipeline.disabled-steps}, nel formato {@code <pipeline>.<step>},
- * nella mappa nome-pipeline -> step disattivati attesa da {@code StepActivation.disabling}.
+ * Converts the entries of {@code pipeline.disabled-steps}, in the form
+ * {@code <pipeline>.<step>}, into the map of pipeline name -> disabled steps expected by
+ * {@code StepActivation.disabling}.
  */
 final class DisabledStepsParser {
 
@@ -22,10 +23,10 @@ final class DisabledStepsParser {
     }
 
     /**
-     * Valida e converte le voci, rimuovendo gli spazi iniziali e finali.
+     * Validates and converts the entries, removing leading and trailing whitespace.
      *
-     * @throws PipelineConfigurationException se una o più voci sono malformate; il messaggio le
-     *                                        elenca tutte
+     * @throws PipelineConfigurationException if one or more entries are malformed; the message
+     *                                        lists all of them
      */
     static Map<String, Set<String>> parse(List<String> entries) {
         Map<String, Set<String>> disabledStepsByPipeline = new LinkedHashMap<>();

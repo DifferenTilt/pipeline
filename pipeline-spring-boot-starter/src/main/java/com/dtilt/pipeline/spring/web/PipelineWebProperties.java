@@ -5,17 +5,17 @@ import java.util.EnumMap;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-/** Configurazione della gestione HTTP degli errori, letta dalle property {@code pipeline.web}. */
+/** Configuration of HTTP error handling, read from the {@code pipeline.web} properties. */
 @ConfigurationProperties("pipeline.web")
 public class PipelineWebProperties {
 
     /**
-     * Aggiunge pipeline e step alle risposte di errore di business.
+     * Adds pipeline and step to business error responses.
      */
     private boolean includeLocation = false;
 
     /**
-     * Sovrascrive, voce per voce, la mappatura di default da categoria a status HTTP (400-599).
+     * Overrides, entry by entry, the default mapping from category to HTTP status (400-599).
      */
     private Map<BusinessRuleException.Category, Integer> statusMapping =
             new EnumMap<>(BusinessRuleException.Category.class);
@@ -23,36 +23,36 @@ public class PipelineWebProperties {
     private final ExceptionHandler exceptionHandler = new ExceptionHandler();
 
     /**
-     * Indica se le risposte di errore di business includono {@code pipeline} e {@code step}.
+     * Tells whether business error responses include {@code pipeline} and {@code step}.
      *
-     * @return {@code true} se la posizione viene inclusa; default {@code false}
+     * @return {@code true} if the location is included; the default is {@code false}
      */
     public boolean isIncludeLocation() {
         return includeLocation;
     }
 
     /**
-     * Imposta se includere {@code pipeline} e {@code step} nelle risposte di errore di business.
+     * Sets whether to include {@code pipeline} and {@code step} in business error responses.
      *
-     * @param includeLocation {@code true} per includere la posizione
+     * @param includeLocation {@code true} to include the location
      */
     public void setIncludeLocation(boolean includeLocation) {
         this.includeLocation = includeLocation;
     }
 
     /**
-     * Mappatura personalizzata da categoria a status HTTP.
+     * The custom mapping from category to HTTP status.
      *
-     * @return le voci configurate, mai null (vuota di default)
+     * @return the configured entries, never null (empty by default)
      */
     public Map<BusinessRuleException.Category, Integer> getStatusMapping() {
         return statusMapping;
     }
 
     /**
-     * Imposta la mappatura personalizzata da categoria a status HTTP.
+     * Sets the custom mapping from category to HTTP status.
      *
-     * @param statusMapping status per categoria; null equivale a mappa vuota
+     * @param statusMapping the status by category; null means an empty map
      */
     public void setStatusMapping(Map<BusinessRuleException.Category, Integer> statusMapping) {
         this.statusMapping = (statusMapping != null)
@@ -61,35 +61,35 @@ public class PipelineWebProperties {
     }
 
     /**
-     * Configurazione dell'handler HTTP di default.
+     * The configuration of the default HTTP handler.
      *
-     * @return la configurazione dell'handler, mai null
+     * @return the handler configuration, never null
      */
     public ExceptionHandler getExceptionHandler() {
         return exceptionHandler;
     }
 
-    /** Property con prefisso {@code pipeline.web.exception-handler}. */
+    /** Properties with the {@code pipeline.web.exception-handler} prefix. */
     public static class ExceptionHandler {
 
         /**
-         * Attiva l'handler HTTP di default delle eccezioni della pipeline.
+         * Enables the default HTTP handler for pipeline exceptions.
          */
         private boolean enabled = true;
 
         /**
-         * Indica se l'handler HTTP di default è attivo.
+         * Tells whether the default HTTP handler is enabled.
          *
-         * @return {@code true} se attivo (default)
+         * @return {@code true} if enabled (the default)
          */
         public boolean isEnabled() {
             return enabled;
         }
 
         /**
-         * Attiva o disattiva l'handler HTTP di default.
+         * Enables or disables the default HTTP handler.
          *
-         * @param enabled {@code false} per non registrare {@code PipelineExceptionHandler}
+         * @param enabled {@code false} to not register {@code PipelineExceptionHandler}
          */
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;

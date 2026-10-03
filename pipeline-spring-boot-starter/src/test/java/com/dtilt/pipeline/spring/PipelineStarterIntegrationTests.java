@@ -63,7 +63,7 @@ class PipelineStarterIntegrationTests {
         });
     }
 
-    /** Nomi degli step eseguiti, nell'ordine di esecuzione. */
+    /** Names of the executed steps, in execution order. */
     static class ExecutedSteps {
         final List<String> names = new CopyOnWriteArrayList<>();
     }

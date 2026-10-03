@@ -17,13 +17,13 @@
     <description>Spring Boot starter for pipeline-core: step toggles from configuration, startup validation and default HTTP error handling.</description>
 
     <properties>
-        <!-- JUnit gestito da Spring Boot 4.1.1: spring-boot-test richiede le API di JUnit 6. -->
+        <!-- The JUnit version managed by Spring Boot 4.1.1: spring-boot-test needs the JUnit 6 APIs. -->
         <starter.junit.version>6.0.3</starter.junit.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Sovrascrive, solo per questo modulo, il JUnit 5 gestito dal parent per pipeline-core. -->
+            <!-- Overrides, for this module only, the JUnit 5 managed by the parent for pipeline-core. -->
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
@@ -82,8 +82,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <!-- Il configuration processor non reclama le annotazioni Spring: senza
-                         -processing il lint le segnalerebbe come warning. -->
+                    <!-- The configuration processor does not claim the Spring annotations: without
+                         -processing the lint would report them as warnings. -->
                     <compilerArgs combine.self="override">
                         <arg>-Xlint:all,-processing</arg>
                     </compilerArgs>

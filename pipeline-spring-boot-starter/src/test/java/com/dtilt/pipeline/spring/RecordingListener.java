@@ -5,7 +5,7 @@ import com.dtilt.pipeline.listener.PipelineListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** Listener di test che raccoglie gli eventi ricevuti. */
+/** Test listener that collects the received events. */
 final class RecordingListener<C> implements PipelineListener<C> {
 
     final List<PipelineEvent<? extends C>> events = new CopyOnWriteArrayList<>();

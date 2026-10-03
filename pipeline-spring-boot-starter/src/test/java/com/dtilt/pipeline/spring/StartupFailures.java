@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
 
-/** Supporto ai test che verificano il fallimento dell'avvio del contesto. */
+/** Support for tests that check that the context failed to start. */
 final class StartupFailures {
 
     private StartupFailures() {
     }
 
-    /** Verifica che l'avvio sia fallito e restituisce la causa più interna del fallimento. */
+    /** Checks that startup failed and returns the innermost cause of the failure. */
     static Throwable rootCause(AssertableApplicationContext context) {
         assertThat(context).hasFailed();
         Throwable cause = context.getStartupFailure();

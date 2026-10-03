@@ -38,7 +38,7 @@ class PipelineAutoConfigurationTests {
             .withConfiguration(AutoConfigurations.of(
                     PipelineAutoConfiguration.class, PipelineWebAutoConfiguration.class));
 
-    /** Pipeline a, b, c il cui contesto registra i nomi degli step eseguiti. */
+    /** Pipeline a, b, c whose context records the names of the executed steps. */
     private static Pipeline<List<String>> abc(PipelineFactory factory, String name) {
         return factory.<List<String>>pipeline(name)
                 .step("a", trace -> trace.add("a"))
@@ -51,7 +51,7 @@ class PipelineAutoConfigurationTests {
         return abc(factory, name).run(new ArrayList<>());
     }
 
-    // --- Auto-configuration di base ---
+    // --- Base auto-configuration ---
 
     @Test
     void withoutPropertiesProvidesDefaultBeansAndAllStepsAreEnabled() {
@@ -154,7 +154,7 @@ class PipelineAutoConfigurationTests {
                         .hasMessageContaining("'Not-Valid'"));
     }
 
-    // --- Listener ---
+    // --- Listeners ---
 
     @Test
     void objectListenersAreGlobalAndNotifiedInOrder() {
@@ -180,7 +180,7 @@ class PipelineAutoConfigurationTests {
             assertThat(config.specific.events).isEmpty();
             assertThat(config.global.events).hasSize(8);
 
-            // Va aggiunto esplicitamente sul builder della pipeline a cui si riferisce.
+            // It must be added explicitly on the builder of the pipeline it belongs to.
             factory.<List<String>>pipeline("explicit")
                     .step("a", trace -> trace.add("a"))
                     .listener(config.specific)

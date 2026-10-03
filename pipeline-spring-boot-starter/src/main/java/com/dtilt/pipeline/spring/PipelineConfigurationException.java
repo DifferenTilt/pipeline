@@ -1,18 +1,18 @@
 package com.dtilt.pipeline.spring;
 
 /**
- * Segnala una configurazione delle pipeline non valida: voci di {@code pipeline.disabled-steps}
- * malformate o sconosciute, nomi di pipeline duplicati, status HTTP non ammessi. Lanciata
- * all'avvio, impedisce la partenza dell'applicazione.
+ * Signals an invalid pipeline configuration: malformed or unknown entries in
+ * {@code pipeline.disabled-steps}, duplicate pipeline names, HTTP statuses that are not allowed.
+ * It is thrown at startup and prevents the application from starting.
  */
 public class PipelineConfigurationException extends IllegalStateException {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Crea l'eccezione.
+     * Creates the exception.
      *
-     * @param message descrizione dei problemi riscontrati
+     * @param message a description of the problems found
      */
     public PipelineConfigurationException(String message) {
         super(message);

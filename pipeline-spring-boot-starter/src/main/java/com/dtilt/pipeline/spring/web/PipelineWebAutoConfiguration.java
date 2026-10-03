@@ -10,9 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.ProblemDetail;
 
 /**
- * Auto-configuration web: nelle applicazioni web servlet registra il
- * {@link PipelineExceptionHandler} di default, a meno che il progetto ne definisca uno proprio o
- * lo disattivi con {@code pipeline.web.exception-handler.enabled=false}.
+ * Web auto-configuration: in servlet web applications it registers the default
+ * {@link PipelineExceptionHandler}, unless the project defines its own or disables it with
+ * {@code pipeline.web.exception-handler.enabled=false}.
  */
 @AutoConfiguration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
