@@ -1,6 +1,9 @@
 # Decisioni
 
-Decisioni prese su punti ambigui di `pipeline-core-spec.md`.
+Decisioni prese su punti ambigui di `pipeline-core-spec.md` e
+`pipeline-spring-boot-starter-spec.md`.
+
+# pipeline-core
 
 ## Progetto
 
@@ -58,3 +61,66 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md`.
 - **Costruttore package-private con `System.Logger`**, usato solo dai test per verificare livelli
   e contenuto dei messaggi. Il nome del logger è esposto come costante `LOGGER_NAME`.
 - Le durate sono loggate in millisecondi.
+
+# pipeline-spring-boot-starter
+
+## Build e dipendenze
+
+- **Spring Boot 4.1.1**, ultima patch 4.1.x disponibile; BOM importato nel parent.
+- **JUnit 6 solo nello starter.** `spring-boot-test` 4.1 richiede le API di JUnit 6 (con JUnit 5
+  `OutputCaptureExtension` fallisce con `NoSuchMethodError`). Il parent continua a gestire JUnit
+  5.14.4 per `pipeline-core`; il `pom.xml` dello starter importa `junit-bom` 6.0.3 (la versione
+  gestita da Spring Boot 4.1.1) nel proprio `dependencyManagement`. `pipeline-core` non è toccato.
+- **Jackson in scope `test`.** `tools.jackson.core:jackson-databind` è aggiunto come dipendenza di
+  test: `spring-boot-starter-test` non lo include e serve a MockMvc per serializzare `ProblemDetail`.
+- **`-Xlint:all,-processing` nello starter.** Il configuration processor non reclama le annotazioni
+  Spring e il lint `processing` lo segnalerebbe come warning, facendo fallire la build.
+- **Configuration processor** dichiarato come dipendenza `optional`, come da tabella della
+  specifica; il compilatore lo trova sul classpath.
+- **Logging con `org.apache.commons.logging`.** SLF4J non è una dipendenza dello starter (arriva
+  solo con `spring-boot-starter-logging` dell'applicazione), quindi validatore e handler usano
+  Commons Logging di spring-core, come previsto dalla specifica.
+
+## Configurazione
+
+- **Properties come classi JavaBean**, non record: i commenti Javadoc sui campi sono la forma più
+  diretta per generare le descrizioni nei metadati.
+- **`pipeline.logging.enabled` e `pipeline.web.exception-handler.enabled`** sono anche campi di
+  `PipelineProperties` e `PipelineWebProperties` (classi annidate), così compaiono nei metadati.
+- **Voci malformate di `disabled-steps`.** Il parser le raccoglie tutte e le riporta in un'unica
+  `PipelineConfigurationException`. Una voce null equivale a una voce vuota (malformata).
+- **Validazione del formato "sempre attiva".** Il formato è validato sia alla creazione dello
+  `StepActivation` di default sia da `PipelineDefinitionsValidator`, quindi anche quando il progetto
+  definisce un proprio `StepActivation`.
+- **`listener-error-policy` null** equivale al default `LOG_AND_CONTINUE`.
+
+## Validazione all'avvio
+
+- **Step di pipeline con nome duplicato.** Una voce è considerata nota se lo step esiste in almeno
+  una delle pipeline con quel nome; il nome duplicato è comunque segnalato come errore.
+- **Messaggio.** Prima riga `Invalid pipeline configuration:`, poi un problema per riga (prima i
+  duplicati, poi le voci sconosciute).
+- **`getBeansOfType(Pipeline.class)`** inizializza anche eventuali bean `Pipeline` lazy, come
+  conseguenza dell'API indicata dalla specifica.
+
+## Web
+
+- **Status fuori da 400-599.** Validato nel costruttore di `PipelineExceptionHandler`, così vale
+  anche per le sottoclassi del progetto. L'avvio fallisce con una `BeanCreationException` la cui
+  causa è `PipelineConfigurationException`.
+- **`title`.** Reason phrase dello status; per uno status configurato che non è uno `HttpStatus`
+  noto (es. 499) il titolo non viene impostato.
+- **`include-location` con eccezione non localizzata.** `pipeline` e `step` vengono omessi se null
+  (eccezione lanciata fuori da una pipeline).
+- **Log degli errori tecnici** in `handleStepExecution`, non in `technicalProblem`: una sottoclasse
+  che sovrascrive `technicalProblem` mantiene il log.
+- **Metodi `@Bean` package-private** in entrambe le auto-configuration, come nell'esempio di §7.1.
+
+## Test
+
+- **Test end-to-end** con `WebApplicationContextRunner` e MockMvc (entrambe le auto-configuration,
+  `@EnableWebMvc`, controller, pipeline bean), come indicato in testa a §9, senza `@SpringBootTest`.
+- **Advice catch-all di test** risponde 503 a un'eccezione non della pipeline, per verificare che
+  sia effettivamente attivo.
+- **Variabile d'ambiente `PIPELINE_DISABLEDSTEPS`** verificata con un
+  `SystemEnvironmentPropertySource` di test.
