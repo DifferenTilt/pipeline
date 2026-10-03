@@ -10,6 +10,14 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md` e
 - **groupId `com.dtilt.pipeline`.** Scelto al posto del segnaposto `com.example` della specifica
   originale, per coerenza con il package base `com.dtilt.pipeline`. Le coordinate del modulo sono
   `com.dtilt.pipeline:pipeline-core`.
+- **Layout dei package.** Su richiesta dell'utente il core è suddiviso in `com.dtilt.pipeline`
+  (`Pipeline`, `PipelineFactory`, `Step`, `StepActivation`, `ListenerChain`),
+  `com.dtilt.pipeline.exception` (le tre eccezioni), `com.dtilt.pipeline.event` (`PipelineEvent` e i
+  record) e `com.dtilt.pipeline.listener` (`PipelineListener`, `ListenerErrorPolicy`,
+  `LoggingPipelineListener`), invece dei due soli package della specifica originale.
+- **`PipelineException.locate` è `public final`.** Con le eccezioni in un package diverso da
+  `Pipeline` non può più essere package-private. Resta innocuo: assegna la posizione solo se non
+  è già assegnata.
 - **Radice del progetto = `pipeline-parent`.** Il `pom.xml` del parent sta nella directory radice
   `pipeline/`, che contiene anche le specifiche; i moduli stanno nelle sottodirectory
   (`pipeline-core/` e, in futuro, `pipeline-spring-boot-starter/`).
