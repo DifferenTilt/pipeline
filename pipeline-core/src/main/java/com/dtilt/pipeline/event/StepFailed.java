@@ -1,6 +1,6 @@
 package com.dtilt.pipeline.event;
 
-import com.dtilt.pipeline.PipelineException;
+import com.dtilt.pipeline.exception.PipelineException;
 import java.time.Duration;
 import java.time.Instant;
 

@@ -6,8 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.dtilt.pipeline.BusinessRuleException;
-import com.dtilt.pipeline.BusinessRuleException.Category;
+import com.dtilt.pipeline.exception.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.Pipeline;
 import com.dtilt.pipeline.PipelineFactory;
 import com.dtilt.pipeline.spring.web.PipelineWebAutoConfiguration;

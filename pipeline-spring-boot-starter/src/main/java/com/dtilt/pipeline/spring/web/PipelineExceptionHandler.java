@@ -1,7 +1,7 @@
 package com.dtilt.pipeline.spring.web;
 
-import com.dtilt.pipeline.BusinessRuleException;
-import com.dtilt.pipeline.StepExecutionException;
+import com.dtilt.pipeline.exception.BusinessRuleException;
+import com.dtilt.pipeline.exception.StepExecutionException;
 import com.dtilt.pipeline.spring.PipelineConfigurationException;
 import java.util.EnumMap;
 import java.util.Map;

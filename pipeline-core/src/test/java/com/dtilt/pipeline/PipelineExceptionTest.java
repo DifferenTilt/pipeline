@@ -6,9 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.dtilt.pipeline.BusinessRuleException.Category;
+import com.dtilt.pipeline.exception.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.event.PipelineFailed;
 import com.dtilt.pipeline.event.StepFailed;
+import com.dtilt.pipeline.exception.StepExecutionException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

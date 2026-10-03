@@ -6,12 +6,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.dtilt.pipeline.BusinessRuleException.Category;
+import com.dtilt.pipeline.exception.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.event.PipelineCompleted;
 import com.dtilt.pipeline.event.PipelineEvent;
 import com.dtilt.pipeline.event.PipelineFailed;
 import com.dtilt.pipeline.event.StepCompleted;
 import com.dtilt.pipeline.event.StepFailed;
+import com.dtilt.pipeline.exception.StepExecutionException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;

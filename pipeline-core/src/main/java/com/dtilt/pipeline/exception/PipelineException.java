@@ -1,4 +1,6 @@
-package com.dtilt.pipeline;
+package com.dtilt.pipeline.exception;
+
+import com.dtilt.pipeline.Pipeline;
 
 /**
  * Radice della gerarchia di eccezioni propagate da {@link Pipeline#run(Object)}.
@@ -51,8 +53,15 @@ public abstract class PipelineException extends RuntimeException {
         return step;
     }
 
-    /** Assegna la posizione solo se non è già stata assegnata. */
-    final void locate(String pipeline, String step) {
+    /**
+     * Assegna la posizione dell'errore, solo se non è già stata assegnata: con pipeline annidate
+     * resta quindi quella più interna. Riservato a {@link Pipeline}, che lo chiama quando
+     * intercetta l'eccezione; il codice applicativo non ha motivo di usarlo.
+     *
+     * @param pipeline nome della pipeline in cui è avvenuto l'errore
+     * @param step     nome dello step in cui è avvenuto l'errore
+     */
+    public final void locate(String pipeline, String step) {
         if (this.pipeline == null && this.step == null) {
             this.pipeline = pipeline;
             this.step = step;

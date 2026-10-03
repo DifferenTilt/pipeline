@@ -2,7 +2,7 @@ package com.dtilt.pipeline.spring.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.dtilt.pipeline.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException;
 import com.dtilt.pipeline.spring.PipelineAutoConfiguration;
 import com.dtilt.pipeline.spring.PipelineConfigurationException;
 import org.junit.jupiter.api.Test;

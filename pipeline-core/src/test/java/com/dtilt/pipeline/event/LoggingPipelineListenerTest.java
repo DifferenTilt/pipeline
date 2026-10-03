@@ -3,8 +3,8 @@ package com.dtilt.pipeline.event;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.dtilt.pipeline.BusinessRuleException;
-import com.dtilt.pipeline.BusinessRuleException.Category;
+import com.dtilt.pipeline.exception.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.Pipeline;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;

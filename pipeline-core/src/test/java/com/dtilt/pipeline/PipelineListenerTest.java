@@ -10,6 +10,7 @@ import com.dtilt.pipeline.event.PipelineEvent;
 import com.dtilt.pipeline.event.PipelineListener;
 import com.dtilt.pipeline.event.StepCompleted;
 import com.dtilt.pipeline.event.StepSkipped;
+import com.dtilt.pipeline.exception.StepExecutionException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;

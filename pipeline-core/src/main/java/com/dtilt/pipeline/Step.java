@@ -1,5 +1,7 @@
 package com.dtilt.pipeline;
 
+import com.dtilt.pipeline.exception.BusinessRuleException;
+
 /**
  * Un'unità di logica di business all'interno di una {@link Pipeline}.
  *

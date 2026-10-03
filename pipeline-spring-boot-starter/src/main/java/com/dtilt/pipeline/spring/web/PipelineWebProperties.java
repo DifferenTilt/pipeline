@@ -1,6 +1,6 @@
 package com.dtilt.pipeline.spring.web;
 
-import com.dtilt.pipeline.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException;
 import java.util.EnumMap;
 import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;

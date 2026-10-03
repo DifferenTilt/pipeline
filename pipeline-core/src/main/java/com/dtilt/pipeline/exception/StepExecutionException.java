@@ -1,4 +1,4 @@
-package com.dtilt.pipeline;
+package com.dtilt.pipeline.exception;
 
 import java.util.Objects;
 

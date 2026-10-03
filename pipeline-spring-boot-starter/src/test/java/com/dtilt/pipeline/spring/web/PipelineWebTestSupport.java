@@ -1,7 +1,7 @@
 package com.dtilt.pipeline.spring.web;
 
-import com.dtilt.pipeline.BusinessRuleException;
-import com.dtilt.pipeline.BusinessRuleException.Category;
+import com.dtilt.pipeline.exception.BusinessRuleException;
+import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.Pipeline;
 import com.dtilt.pipeline.Step;
 import java.util.Map;
