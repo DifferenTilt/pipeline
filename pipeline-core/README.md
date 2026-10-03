@@ -1,27 +1,36 @@
 # pipeline-core
 
-Libreria Java 17 senza dipendenze runtime per eseguire logica di business come una sequenza di
-step configurabili che condividono un contesto.
+A Java 17 library with no runtime dependencies for running business logic as a sequence of
+configurable steps that share a context.
 
-- **Pipeline**: sequenza ordinata e immutabile di step con un nome, eseguita con `run(context)`.
-- **Step**: un'unità di logica di business; legge e modifica il contesto.
-- **Contesto**: oggetto tipizzato definito dall'utente, uno per esecuzione.
-- **Attivazione** (`StepActivation`): decide a ogni esecuzione se uno step è attivo; gli step
-  disattivati vengono saltati.
-- **Listener** (`PipelineListener`): riceve gli eventi del ciclo di vita (avvio, step,
-  completamento, fallimento) per logging, metriche, audit.
-- **Fail-fast**: il primo step che lancia un'eccezione interrompe la pipeline e l'eccezione viene
-  propagata al chiamante.
+- **Pipeline**: an ordered, immutable sequence of named steps, executed with `run(context)`.
+- **Step**: a unit of business logic; it reads and modifies the context.
+- **Context**: a typed, user-defined object, one per execution.
+- **Activation** (`StepActivation`): decides on every execution whether a step is enabled; disabled
+  steps are skipped.
+- **Listener** (`PipelineListener`): receives lifecycle events (start, step, completion, failure)
+  for logging, metrics and auditing.
+- **Fail-fast**: the first step that throws stops the pipeline, and the exception is propagated to
+  the caller.
 
-Nomi di pipeline e step sono in kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`).
+Pipeline and step names are kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`).
 
-## Esempio d'uso
+## Packages
+
+| Package | Contents |
+|---|---|
+| `com.dtilt.pipeline` | `Pipeline`, `PipelineFactory`, `Step`, `StepActivation` |
+| `com.dtilt.pipeline.exception` | `PipelineException`, `BusinessRuleException`, `StepExecutionException` |
+| `com.dtilt.pipeline.event` | `PipelineEvent` and the event records (`PipelineStarted`, `StepCompleted`, ...) |
+| `com.dtilt.pipeline.listener` | `PipelineListener`, `ListenerErrorPolicy`, `LoggingPipelineListener` |
+
+## Usage example
 
 ```java
 public class CreateProductContext {
     private final CreateProductRequest request;
     private Product savedProduct;
-    // costruttore, getter, setter
+    // constructor, getters, setters
 }
 
 class NameUniqueStep implements Step<CreateProductContext> {
@@ -54,33 +63,33 @@ Pipeline<CreateProductContext> createProduct = factory.<CreateProductContext>pip
 try {
     Product product = createProduct.run(new CreateProductContext(request)).getSavedProduct();
 } catch (BusinessRuleException e) {
-    // errore atteso: e.getCode(), e.getCategory(), e.getStep()
+    // expected error: e.getCode(), e.getCategory(), e.getStep()
 } catch (StepExecutionException e) {
-    // errore tecnico: e.getCause()
+    // technical error: e.getCause()
 }
 ```
 
-## Eccezioni
+## Exceptions
 
-| Lanciata dallo step | Propagata da `run` |
+| Thrown by the step | Propagated by `run` |
 |---|---|
-| `PipelineException` (es. `BusinessRuleException`) | la stessa istanza, con `getPipeline()` e `getStep()` valorizzati |
-| altra `RuntimeException` | `StepExecutionException` con l'originale come causa |
-| `Error` | invariato, senza eventi di fallimento |
+| `PipelineException` (e.g. `BusinessRuleException`) | the same instance, with `getPipeline()` and `getStep()` set |
+| any other `RuntimeException` | `StepExecutionException` with the original as its cause |
+| `Error` | unchanged, without failure events |
 
-Con pipeline annidate viene mantenuta la posizione più interna.
+With nested pipelines the innermost location is kept.
 
-## Listener
+## Listeners
 
-`Pipeline` chiama solo `PipelineListener.onEvent`; il default smista verso i metodi specifici
-(`onStepStarted`, `onPipelineFailed`, ...). I listener non devono modificare il contesto.
+`Pipeline` only calls `PipelineListener.onEvent`; the default implementation dispatches to the
+specific methods (`onStepStarted`, `onPipelineFailed`, ...). Listeners must not modify the context.
 
-Con `ListenerErrorPolicy.LOG_AND_CONTINUE` (default) un listener che lancia un'eccezione viene
-loggato a `WARNING` e non cambia l'esito della pipeline; con `PROPAGATE` l'eccezione raggiunge il
-chiamante (utile nei test).
+With `ListenerErrorPolicy.LOG_AND_CONTINUE` (the default) a listener that throws is logged at
+`WARNING` and does not change the outcome of the pipeline; with `PROPAGATE` the exception reaches
+the caller (useful in tests).
 
-`LoggingPipelineListener` è un listener opzionale basato su `System.Logger` (logger
-`com.dtilt.pipeline`); non viene registrato automaticamente.
+`LoggingPipelineListener` is an optional listener based on `System.Logger` (logger name
+`com.dtilt.pipeline`); it is not registered automatically.
 
 ## Build
 

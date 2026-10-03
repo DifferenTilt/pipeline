@@ -1,19 +1,19 @@
 # pipeline-spring-boot-starter
 
-Starter Spring Boot 4.1 per `pipeline-core`. Aggiungendolo, un'applicazione ottiene:
+Spring Boot 4.1 starter for `pipeline-core`. Adding it gives an application:
 
-1. un bean `StepActivation` che disattiva gli step elencati in `pipeline.disabled-steps`;
-2. un bean `PipelineFactory` già collegato all'attivazione, ai listener globali, alla policy di
-   errore dei listener e al bean `Clock`, se presente;
-3. un controllo all'avvio: se la configurazione cita pipeline o step inesistenti, l'applicazione
-   non parte;
-4. nelle applicazioni web servlet, un `@RestControllerAdvice` che traduce le eccezioni della
-   pipeline in risposte `ProblemDetail` (RFC 9457).
+1. a `StepActivation` bean that disables the steps listed in `pipeline.disabled-steps`;
+2. a `PipelineFactory` bean already wired to the activation, the global listeners, the listener
+   error policy and the `Clock` bean, if there is one;
+3. a startup check: if the configuration mentions pipelines or steps that do not exist, the
+   application does not start;
+4. in servlet web applications, a `@RestControllerAdvice` that translates pipeline exceptions into
+   `ProblemDetail` responses (RFC 9457).
 
-Ogni componente è sostituibile definendo un proprio bean dello stesso tipo, o disattivabile da
+Every component can be replaced by defining a bean of the same type, or switched off with a
 property.
 
-## Dipendenza
+## Dependency
 
 ```xml
 <dependency>
@@ -23,7 +23,7 @@ property.
 </dependency>
 ```
 
-## Configurazione
+## Configuration
 
 ```yaml
 pipeline:
@@ -33,32 +33,33 @@ pipeline:
     enabled: true
 ```
 
-| Property | Default | Descrizione |
+| Property | Default | Description |
 |---|---|---|
-| `pipeline.disabled-steps` | vuota | Step disattivati, nel formato `<pipeline>.<step>` |
-| `pipeline.fail-on-unknown-steps` | `true` | Se `true`, le voci che non corrispondono a pipeline o step esistenti bloccano l'avvio; se `false` vengono solo loggate come `WARN` |
-| `pipeline.listener-error-policy` | `LOG_AND_CONTINUE` | Policy passata alla `PipelineFactory` (`LOG_AND_CONTINUE` o `PROPAGATE`) |
-| `pipeline.logging.enabled` | `false` | Registra `LoggingPipelineListener` come listener globale |
-| `pipeline.web.exception-handler.enabled` | `true` | Attiva l'handler HTTP di default |
-| `pipeline.web.include-location` | `false` | Aggiunge `pipeline` e `step` alle risposte di errore di business |
-| `pipeline.web.status-mapping` | vuota | Sovrascrive la mappatura categoria → status HTTP (valori 400–599) |
+| `pipeline.disabled-steps` | empty | Disabled steps, in the form `<pipeline>.<step>` |
+| `pipeline.fail-on-unknown-steps` | `true` | If `true`, entries that do not match an existing pipeline or step prevent startup; if `false` they are only logged at `WARN` |
+| `pipeline.listener-error-policy` | `LOG_AND_CONTINUE` | Policy passed to the `PipelineFactory` (`LOG_AND_CONTINUE` or `PROPAGATE`) |
+| `pipeline.logging.enabled` | `false` | Registers `LoggingPipelineListener` as a global listener |
+| `pipeline.web.exception-handler.enabled` | `true` | Enables the default HTTP handler |
+| `pipeline.web.include-location` | `false` | Adds `pipeline` and `step` to business error responses |
+| `pipeline.web.status-mapping` | empty | Overrides the category → HTTP status mapping (values 400–599) |
 
-### Formato di `pipeline.disabled-steps`
+### Format of `pipeline.disabled-steps`
 
-Ogni voce ha la forma `<nome-pipeline>.<nome-step>`, con nomi in kebab-case. Gli spazi iniziali e
-finali vengono rimossi. Una voce malformata blocca sempre l'avvio con
-`PipelineConfigurationException`, anche con `fail-on-unknown-steps=false`.
+Each entry has the form `<pipeline-name>.<step-name>`, with kebab-case names. Leading and trailing
+whitespace is removed. A malformed entry always prevents startup with a
+`PipelineConfigurationException`, even with `fail-on-unknown-steps=false`.
 
-La lista si imposta anche da variabile d'ambiente, utile per un rollback rapido in container:
+The list can also be set from an environment variable, which is handy for a quick rollback in
+containers:
 
 ```
 PIPELINE_DISABLEDSTEPS=create-product.date-range,update-product.audit
 ```
 
-Per toggle modificabili a runtime (Togglz, OpenFeature, un database) basta definire un proprio bean
-`StepActivation`: quello di default non viene creato.
+For toggles that change at runtime (Togglz, OpenFeature, a database), define your own
+`StepActivation` bean: the default one is then not created.
 
-## Composizione della pipeline
+## Composing a pipeline
 
 ```java
 @Configuration
@@ -76,10 +77,10 @@ class CreateProductPipelineConfig {
 }
 ```
 
-## Uso nel service
+## Using it in a service
 
-La transazione resta responsabilità del chiamante: un'eccezione propagata dalla pipeline provoca
-il rollback di tutti gli step già eseguiti.
+The transaction remains the caller's responsibility: an exception propagated by the pipeline rolls
+back every step that has already run.
 
 ```java
 @Service
@@ -98,21 +99,21 @@ class ProductService {
 }
 ```
 
-**Vincoli univoci a DB.** Per i duplicati la garanzia va data da un vincolo `UNIQUE` sulla tabella.
-Lo step di salvataggio intercetta la `DataIntegrityViolationException` e la trasforma in una
-`BusinessRuleException` con categoria `CONFLICT`: è lo step a sapere quale vincolo è stato violato,
-non l'handler HTTP.
+**Unique constraints in the database.** For duplicates, the guarantee must come from a `UNIQUE`
+constraint on the table. The save step catches the `DataIntegrityViolationException` and turns it
+into a `BusinessRuleException` with category `CONFLICT`: it is the step that knows which constraint
+was violated, not the HTTP handler.
 
-## Listener
+## Listeners
 
-Tutti i bean di tipo `PipelineListener<Object>` sono listener globali: vengono registrati sulla
-`PipelineFactory` nell'ordine dato da `@Order` o `Ordered` e notificati per ogni pipeline creata
-dalla factory.
+All beans of type `PipelineListener<Object>` are global listeners: they are registered on the
+`PipelineFactory` in the order given by `@Order` or `Ordered`, and notified for every pipeline
+created by the factory.
 
-**Limite: listener specifici di un contesto.** Un bean dichiarato come
-`PipelineListener<CreateProductContext>` non è un listener globale e **non** viene registrato
-automaticamente, perché il tipo generico non corrisponde a `PipelineListener<Object>`. Va aggiunto
-esplicitamente sul builder della pipeline a cui si riferisce:
+**Limitation: context-specific listeners.** A bean declared as
+`PipelineListener<CreateProductContext>` is not a global listener and is **not** registered
+automatically, because its generic type does not match `PipelineListener<Object>`. It must be added
+explicitly on the builder of the pipeline it belongs to:
 
 ```java
 factory.<CreateProductContext>pipeline("create-product")
@@ -121,56 +122,56 @@ factory.<CreateProductContext>pipeline("create-product")
         .build();
 ```
 
-## Validazione all'avvio
+## Startup validation
 
-Dopo la creazione di tutti i singleton, `PipelineDefinitionsValidator` controlla che:
+Once all singletons have been created, `PipelineDefinitionsValidator` checks that:
 
-- due bean `Pipeline` non abbiano lo stesso nome (sempre bloccante: i toggle sarebbero ambigui);
-- ogni voce di `pipeline.disabled-steps` si riferisca a una pipeline e a uno step esistenti.
+- no two `Pipeline` beans have the same name (always fatal: toggles would be ambiguous);
+- every entry of `pipeline.disabled-steps` refers to an existing pipeline and step.
 
-Tutti i problemi vengono raccolti e riportati in un'unica `PipelineConfigurationException`, uno
-per riga.
+All problems are collected and reported in a single `PipelineConfigurationException`, one per line.
 
-**Limite: sono validate solo le pipeline registrate come bean.** Una pipeline costruita dentro un
-costruttore o un metodo non è visibile al validatore, e i suoi toggle risulterebbero "sconosciuti".
-La raccomandazione è dichiarare sempre le pipeline come bean.
+**Limitation: only pipelines registered as beans are validated.** A pipeline built inside a
+constructor or a method is not visible to the validator, and its toggles would be reported as
+"unknown". The recommendation is to always declare pipelines as beans.
 
-## Gestione degli errori HTTP
+## HTTP error handling
 
-Nelle applicazioni web servlet `PipelineExceptionHandler` produce risposte `application/problem+json`.
+In servlet web applications `PipelineExceptionHandler` produces `application/problem+json`
+responses.
 
 `BusinessRuleException`:
 
-| Categoria | Status |
+| Category | Status |
 |---|---|
 | `INVALID_INPUT` | 400 |
 | `FORBIDDEN` | 403 |
 | `NOT_FOUND` | 404 |
 | `CONFLICT` | 409 |
 
-Il body contiene `title`, `status`, `detail` (il messaggio dell'eccezione), `code`, `details` se non
-vuota e, con `pipeline.web.include-location=true`, `pipeline` e `step`. La mappatura si sovrascrive
-voce per voce, ad esempio `pipeline.web.status-mapping.INVALID_INPUT=422`. Questi errori non vengono
-loggati dall'handler.
+The body contains `title`, `status`, `detail` (the exception message), `code`, `details` when not
+empty and, with `pipeline.web.include-location=true`, `pipeline` and `step`. The mapping can be
+overridden entry by entry, for example `pipeline.web.status-mapping.INVALID_INPUT=422`. These errors
+are not logged by the handler.
 
-`StepExecutionException`: 500 con `detail` `An internal error occurred.` e `code` `INTERNAL_ERROR`.
-Messaggio, causa, pipeline e step non vengono mai esposti al client; l'eccezione viene loggata a
-livello `ERROR` con lo stack trace.
+`StepExecutionException`: 500 with `detail` `An internal error occurred.` and `code`
+`INTERNAL_ERROR`. The message, cause, pipeline and step are never exposed to the client; the
+exception is logged at `ERROR` with its stack trace.
 
-### Ordine rispetto agli advice del progetto
+### Order relative to the project's own advice
 
-L'handler ha ordine `LOWEST_PRECEDENCE - 100`. Un advice del progetto senza `@Order` (che vale
-`LOWEST_PRECEDENCE`) con un catch-all `@ExceptionHandler(Exception.class)` quindi **non** intercetta
-le eccezioni della pipeline prima dell'handler dello starter. Per gestirle nel proprio codice ci
-sono tre strade:
+The handler has order `LOWEST_PRECEDENCE - 100`. A project advice without `@Order` (which means
+`LOWEST_PRECEDENCE`) with a catch-all `@ExceptionHandler(Exception.class)` therefore does **not**
+intercept pipeline exceptions before the starter's handler. To handle them in your own code there
+are three options:
 
-1. estendere `PipelineExceptionHandler` (raccomandato);
-2. disattivarlo con `pipeline.web.exception-handler.enabled=false`;
-3. dare al proprio advice un `@Order` con precedenza più alta.
+1. extend `PipelineExceptionHandler` (recommended);
+2. disable it with `pipeline.web.exception-handler.enabled=false`;
+3. give your advice an `@Order` with higher precedence.
 
-### Personalizzazione dell'handler
+### Customising the handler
 
-La sottoclasse registrata come bean sostituisce l'handler di default.
+A subclass registered as a bean replaces the default handler.
 
 ```java
 @Component
