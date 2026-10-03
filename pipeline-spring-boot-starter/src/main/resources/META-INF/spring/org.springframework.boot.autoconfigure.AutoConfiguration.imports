@@ -1,0 +1,2 @@
+com.dtilt.pipeline.spring.PipelineAutoConfiguration
+com.dtilt.pipeline.spring.web.PipelineWebAutoConfiguration
