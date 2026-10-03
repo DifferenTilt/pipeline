@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contiene la configurazione condivisa tra più pipeline (attivazione, listener globali, policy
- * e clock) e produce {@link Pipeline.Builder} già configurati. Immutabile e thread-safe.
+ * Holds the configuration shared by several pipelines (activation, global listeners, policy
+ * and clock) and produces preconfigured {@link Pipeline.Builder}s. Immutable and thread-safe.
  */
 public final class PipelineFactory {
 
@@ -27,24 +27,24 @@ public final class PipelineFactory {
     }
 
     /**
-     * Crea un builder di factory.
+     * Creates a factory builder.
      *
-     * @return un nuovo builder
+     * @return a new builder
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * Builder di pipeline con attivazione, listener globali, policy e clock già impostati.
-     * I listener globali sono registrati per primi: quelli aggiunti sul builder restituito
-     * vengono notificati dopo. Le impostazioni della factory restano sovrascrivibili sul builder.
+     * A pipeline builder with activation, global listeners, policy and clock already set.
+     * Global listeners are registered first: those added on the returned builder are notified
+     * afterwards. The factory settings can still be overridden on the builder.
      *
-     * @param name nome della pipeline, in kebab-case
-     * @param <C>  tipo del contesto
-     * @return un builder di pipeline preconfigurato
-     * @throws NullPointerException     se {@code name} è null
-     * @throws IllegalArgumentException se {@code name} non è in kebab-case
+     * @param name the pipeline name, in kebab-case
+     * @param <C>  the context type
+     * @return a preconfigured pipeline builder
+     * @throws NullPointerException     if {@code name} is null
+     * @throws IllegalArgumentException if {@code name} is not kebab-case
      */
     public <C> Pipeline.Builder<C> pipeline(String name) {
         Pipeline.Builder<C> builder = Pipeline.<C>builder(name)
@@ -55,7 +55,7 @@ public final class PipelineFactory {
         return builder;
     }
 
-    /** Builder di {@link PipelineFactory}. Non è thread-safe; può essere riusato. */
+    /** Builder for {@link PipelineFactory}. Not thread-safe; it can be reused. */
     public static final class Builder {
 
         private final List<PipelineListener<Object>> listeners = new ArrayList<>();
@@ -67,11 +67,11 @@ public final class PipelineFactory {
         }
 
         /**
-         * Imposta l'attivazione condivisa. Default: {@link StepActivation#ALWAYS}.
+         * Sets the shared activation. Default: {@link StepActivation#ALWAYS}.
          *
-         * @param activation attivazione; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code activation} è null
+         * @param activation the activation; not null
+         * @return this builder
+         * @throws NullPointerException if {@code activation} is null
          */
         public Builder activation(StepActivation activation) {
             this.activation = Objects.requireNonNull(activation, "activation must not be null");
@@ -79,12 +79,12 @@ public final class PipelineFactory {
         }
 
         /**
-         * Registra un listener globale. Può essere chiamato più volte: i listener vengono
-         * notificati nell'ordine di registrazione.
+         * Registers a global listener. It can be called several times: listeners are notified
+         * in registration order.
          *
-         * @param listener listener da registrare; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code listener} è null
+         * @param listener the listener to register; not null
+         * @return this builder
+         * @throws NullPointerException if {@code listener} is null
          */
         public Builder listener(PipelineListener<Object> listener) {
             listeners.add(Objects.requireNonNull(listener, "listener must not be null"));
@@ -92,12 +92,12 @@ public final class PipelineFactory {
         }
 
         /**
-         * Imposta la policy condivisa per le eccezioni dei listener.
+         * Sets the shared policy for listener exceptions.
          * Default: {@link ListenerErrorPolicy#LOG_AND_CONTINUE}.
          *
-         * @param policy policy da applicare; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code policy} è null
+         * @param policy the policy to apply; not null
+         * @return this builder
+         * @throws NullPointerException if {@code policy} is null
          */
         public Builder listenerErrorPolicy(ListenerErrorPolicy policy) {
             this.listenerErrorPolicy = Objects.requireNonNull(policy, "listenerErrorPolicy must not be null");
@@ -105,11 +105,11 @@ public final class PipelineFactory {
         }
 
         /**
-         * Imposta il clock condiviso. Default: {@link Clock#systemUTC()}.
+         * Sets the shared clock. Default: {@link Clock#systemUTC()}.
          *
-         * @param clock clock da usare; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code clock} è null
+         * @param clock the clock to use; not null
+         * @return this builder
+         * @throws NullPointerException if {@code clock} is null
          */
         public Builder clock(Clock clock) {
             this.clock = Objects.requireNonNull(clock, "clock must not be null");
@@ -117,9 +117,9 @@ public final class PipelineFactory {
         }
 
         /**
-         * Costruisce la factory con la configurazione corrente.
+         * Builds the factory with the current configuration.
          *
-         * @return una nuova factory immutabile
+         * @return a new immutable factory
          */
         public PipelineFactory build() {
             return new PipelineFactory(this);

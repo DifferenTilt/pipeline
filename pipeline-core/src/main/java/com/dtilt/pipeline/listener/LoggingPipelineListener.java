@@ -16,27 +16,27 @@ import java.time.Duration;
 import java.util.Objects;
 
 /**
- * Listener opzionale che logga il ciclo di vita delle pipeline con {@link System.Logger}, usando
- * il logger di nome {@value #LOGGER_NAME}. Non viene registrato automaticamente.
+ * An optional listener that logs the pipeline lifecycle with {@link System.Logger}, using the
+ * logger named {@value #LOGGER_NAME}. It is not registered automatically.
  *
  * <ul>
- *   <li>avvio della pipeline ed eventi degli step: {@code DEBUG};</li>
- *   <li>pipeline completata: {@code INFO};</li>
- *   <li>pipeline fallita per una {@link BusinessRuleException}: {@code INFO}, con il codice;</li>
- *   <li>pipeline fallita per un errore tecnico: {@code WARNING}, con il messaggio ma senza stack
- *       trace (lo logga chi gestisce l'eccezione).</li>
+ *   <li>pipeline start and step events: {@code DEBUG};</li>
+ *   <li>pipeline completed: {@code INFO};</li>
+ *   <li>pipeline failed with a {@link BusinessRuleException}: {@code INFO}, with the code;</li>
+ *   <li>pipeline failed with a technical error: {@code WARNING}, with the message but without
+ *       the stack trace (whoever handles the exception logs it).</li>
  * </ul>
  *
- * <p>{@link StepFailed} non viene loggato, per evitare duplicati con {@link PipelineFailed}.
+ * <p>{@link StepFailed} is not logged, to avoid duplicating {@link PipelineFailed}.
  */
 public class LoggingPipelineListener implements PipelineListener<Object> {
 
-    /** Nome del logger usato da questo listener. */
+    /** The name of the logger used by this listener. */
     public static final String LOGGER_NAME = "com.dtilt.pipeline";
 
     private final Logger logger;
 
-    /** Crea un listener che scrive sul logger di nome {@value #LOGGER_NAME}. */
+    /** Creates a listener that writes to the logger named {@value #LOGGER_NAME}. */
     public LoggingPipelineListener() {
         this(System.getLogger(LOGGER_NAME));
     }

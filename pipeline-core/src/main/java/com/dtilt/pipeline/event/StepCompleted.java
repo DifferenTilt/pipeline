@@ -4,16 +4,16 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Emesso quando uno step termina normalmente.
+ * Emitted when a step completes normally.
  *
- * @param pipeline   nome della pipeline
- * @param runId      identificativo dell'esecuzione, uguale per tutti gli eventi della stessa esecuzione
- * @param occurredAt istante dell'evento, letto dal {@code Clock} configurato
- * @param context    contesto dell'esecuzione; i listener non devono modificarlo
- * @param step       nome dello step
- * @param stepIndex  posizione dello step nella pipeline, a partire da 0, contando anche gli step saltati
- * @param duration   durata dello step, misurata con {@code System.nanoTime()}
- * @param <C>        tipo del contesto
+ * @param pipeline   the pipeline name
+ * @param runId      the run identifier, the same for all events of one execution
+ * @param occurredAt the instant of the event, read from the configured {@code Clock}
+ * @param context    the execution context; listeners must not modify it
+ * @param step       the step name
+ * @param stepIndex  the position of the step in the pipeline, starting from 0 and counting skipped steps
+ * @param duration   the duration of the step, measured with {@code System.nanoTime()}
+ * @param <C>        the context type
  */
 public record StepCompleted<C>(String pipeline, String runId, Instant occurredAt, C context,
                                String step, int stepIndex, Duration duration)

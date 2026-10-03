@@ -3,13 +3,13 @@ package com.dtilt.pipeline.event;
 import java.time.Instant;
 
 /**
- * Emesso all'avvio di un'esecuzione, prima di qualsiasi step.
+ * Emitted when an execution starts, before any step.
  *
- * @param pipeline   nome della pipeline
- * @param runId      identificativo dell'esecuzione, uguale per tutti gli eventi della stessa esecuzione
- * @param occurredAt istante dell'evento, letto dal {@code Clock} configurato
- * @param context    contesto dell'esecuzione; i listener non devono modificarlo
- * @param <C>        tipo del contesto
+ * @param pipeline   the pipeline name
+ * @param runId      the run identifier, the same for all events of one execution
+ * @param occurredAt the instant of the event, read from the configured {@code Clock}
+ * @param context    the execution context; listeners must not modify it
+ * @param <C>        the context type
  */
 public record PipelineStarted<C>(String pipeline, String runId, Instant occurredAt, C context)
         implements PipelineEvent<C> {

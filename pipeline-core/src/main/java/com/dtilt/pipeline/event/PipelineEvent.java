@@ -4,39 +4,39 @@ import com.dtilt.pipeline.listener.PipelineListener;
 import java.time.Instant;
 
 /**
- * Evento del ciclo di vita di una pipeline, notificato ai {@link PipelineListener}.
+ * A pipeline lifecycle event, delivered to {@link PipelineListener}s.
  *
- * @param <C> tipo del contesto
+ * @param <C> the context type
  */
 public sealed interface PipelineEvent<C>
         permits PipelineStarted, StepStarted, StepSkipped, StepCompleted,
                 StepFailed, PipelineCompleted, PipelineFailed {
 
     /**
-     * Nome della pipeline che ha emesso l'evento.
+     * The name of the pipeline that emitted the event.
      *
-     * @return il nome della pipeline
+     * @return the pipeline name
      */
     String pipeline();
 
     /**
-     * Identificativo dell'esecuzione, uguale per tutti gli eventi della stessa esecuzione.
+     * The run identifier, the same for all events of one execution.
      *
-     * @return l'identificativo dell'esecuzione
+     * @return the run identifier
      */
     String runId();
 
     /**
-     * Istante dell'evento, letto dal {@code Clock} configurato sulla pipeline.
+     * The instant of the event, read from the {@code Clock} configured on the pipeline.
      *
-     * @return l'istante dell'evento
+     * @return the instant of the event
      */
     Instant occurredAt();
 
     /**
-     * Contesto dell'esecuzione. I listener non devono modificarlo.
+     * The execution context. Listeners must not modify it.
      *
-     * @return il contesto
+     * @return the context
      */
     C context();
 }

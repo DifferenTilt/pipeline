@@ -4,21 +4,21 @@ import com.dtilt.pipeline.Pipeline;
 import com.dtilt.pipeline.exception.BusinessRuleException;
 
 /**
- * Un'unità di logica di business all'interno di una {@link Pipeline}.
+ * A unit of business logic within a {@link Pipeline}.
  *
- * <p>Riceve il contesto dell'esecuzione, può leggerlo e modificarlo: il contesto è il canale con
- * cui uno step passa risultati agli step successivi. Uno step che deve fallire per una regola di
- * business lancia {@link BusinessRuleException} (o una sua sottoclasse).
+ * <p>It receives the execution context and can read and modify it: the context is the channel
+ * through which a step passes results to the following steps. A step that must fail because of
+ * a business rule throws {@link BusinessRuleException} (or a subclass of it).
  *
- * @param <C> tipo del contesto
+ * @param <C> the context type
  */
 @FunctionalInterface
 public interface Step<C> {
 
     /**
-     * Esegue la logica dello step.
+     * Executes the step logic.
      *
-     * @param context contesto dell'esecuzione corrente, mai null
+     * @param context the context of the current execution, never null
      */
     void execute(C context);
 }

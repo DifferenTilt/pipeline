@@ -5,16 +5,16 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Emesso quando l'esecuzione si interrompe per il fallimento di uno step, dopo {@link StepFailed}.
+ * Emitted when the execution stops because a step failed, after {@link StepFailed}.
  *
- * @param pipeline   nome della pipeline
- * @param runId      identificativo dell'esecuzione, uguale per tutti gli eventi della stessa esecuzione
- * @param occurredAt istante dell'evento, letto dal {@code Clock} configurato
- * @param context    contesto dell'esecuzione; i listener non devono modificarlo
- * @param duration   durata totale fino al fallimento, misurata con {@code System.nanoTime()}
- * @param failedStep nome dello step che ha causato il fallimento
- * @param error      eccezione già tradotta e localizzata: la stessa istanza lanciata al chiamante
- * @param <C>        tipo del contesto
+ * @param pipeline   the pipeline name
+ * @param runId      the run identifier, the same for all events of one execution
+ * @param occurredAt the instant of the event, read from the configured {@code Clock}
+ * @param context    the execution context; listeners must not modify it
+ * @param duration   the total duration up to the failure, measured with {@code System.nanoTime()}
+ * @param failedStep the name of the step that caused the failure
+ * @param error      the exception, already translated and located: the same instance thrown to the caller
+ * @param <C>        the context type
  */
 public record PipelineFailed<C>(String pipeline, String runId, Instant occurredAt, C context,
                                 Duration duration, String failedStep, PipelineException error)

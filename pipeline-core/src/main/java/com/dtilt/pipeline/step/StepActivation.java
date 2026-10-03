@@ -6,35 +6,34 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Decide, per ogni esecuzione, se uno step è attivo. Gli step disattivati vengono saltati.
+ * Decides, for each execution, whether a step is enabled. Disabled steps are skipped.
  *
- * <p>{@link #isEnabled(String, String)} viene chiamato a ogni esecuzione per ogni step, non al
- * momento della costruzione della pipeline: un'implementazione può quindi cambiare risposta a
- * runtime. Le implementazioni devono essere thread-safe se la pipeline viene eseguita da più
- * thread.
+ * <p>{@link #isEnabled(String, String)} is called on every execution for every step, not when
+ * the pipeline is built: an implementation can therefore change its answer at runtime.
+ * Implementations must be thread-safe if the pipeline is run by several threads.
  */
 @FunctionalInterface
 public interface StepActivation {
 
     /**
-     * Indica se lo step è attivo per l'esecuzione corrente.
+     * Tells whether the step is enabled for the current execution.
      *
-     * @param pipeline nome della pipeline
-     * @param step     nome dello step
-     * @return {@code true} se lo step va eseguito, {@code false} se va saltato
+     * @param pipeline the pipeline name
+     * @param step     the step name
+     * @return {@code true} if the step must be executed, {@code false} if it must be skipped
      */
     boolean isEnabled(String pipeline, String step);
 
-    /** Tutti gli step sempre attivi. Default quando non viene configurata un'attivazione. */
+    /** All steps always enabled. The default when no activation is configured. */
     StepActivation ALWAYS = (pipeline, step) -> true;
 
     /**
-     * Attivazione basata su una mappa nome-pipeline -&gt; nomi degli step disattivati.
-     * Pipeline o step assenti dalla mappa sono attivi. La mappa viene copiata in modo difensivo.
+     * An activation based on a map of pipeline name -&gt; names of the disabled steps.
+     * Pipelines or steps missing from the map are enabled. The map is defensively copied.
      *
-     * @param disabledStepsByPipeline step disattivati per nome di pipeline; non null, senza chiavi
-     *                                o valori null
-     * @return un'attivazione immutabile
+     * @param disabledStepsByPipeline the disabled steps by pipeline name; not null, without null
+     *                                keys or values
+     * @return an immutable activation
      */
     static StepActivation disabling(Map<String, Set<String>> disabledStepsByPipeline) {
         Objects.requireNonNull(disabledStepsByPipeline, "disabledStepsByPipeline must not be null");

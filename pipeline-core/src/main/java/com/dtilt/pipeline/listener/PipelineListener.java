@@ -10,26 +10,26 @@ import com.dtilt.pipeline.event.StepSkipped;
 import com.dtilt.pipeline.event.StepStarted;
 
 /**
- * Riceve gli eventi del ciclo di vita di una pipeline, per logging, metriche, audit.
+ * Receives the lifecycle events of a pipeline, for logging, metrics and auditing.
  *
- * <p>La pipeline chiama solo {@link #onEvent(PipelineEvent)}. Un listener può sovrascrivere
- * {@code onEvent} per gestire tutti gli eventi in un punto, oppure i singoli metodi specifici.
+ * <p>The pipeline only calls {@link #onEvent(PipelineEvent)}. A listener can override
+ * {@code onEvent} to handle every event in one place, or the individual specific methods.
  *
- * <p>I listener ricevono il riferimento al contesto dell'esecuzione e <strong>non devono
- * modificarlo</strong>. Un listener registrato su una pipeline eseguita da più thread deve essere
+ * <p>Listeners receive a reference to the execution context and <strong>must not modify
+ * it</strong>. A listener registered on a pipeline that is run by several threads must be
  * thread-safe.
  *
- * <p>I parametri usano {@code ? extends C} di proposito: così un {@code PipelineListener<Object>}
- * può essere registrato su una pipeline con qualsiasi tipo di contesto.
+ * <p>The parameters use {@code ? extends C} on purpose: this lets a
+ * {@code PipelineListener<Object>} be registered on a pipeline with any context type.
  *
- * @param <C> tipo del contesto osservato
+ * @param <C> the type of the observed context
  */
 public interface PipelineListener<C> {
 
     /**
-     * Punto di ingresso unico. Il default smista l'evento verso il metodo specifico per il suo tipo.
+     * The single entry point. The default dispatches the event to the specific method for its type.
      *
-     * @param event evento emesso dalla pipeline
+     * @param event the event emitted by the pipeline
      */
     default void onEvent(PipelineEvent<? extends C> event) {
         if (event instanceof PipelineStarted<? extends C> e) {
@@ -50,57 +50,57 @@ public interface PipelineListener<C> {
     }
 
     /**
-     * Chiamato all'avvio di un'esecuzione.
+     * Called when an execution starts.
      *
-     * @param event evento di avvio
+     * @param event the start event
      */
     default void onPipelineStarted(PipelineStarted<? extends C> event) {
     }
 
     /**
-     * Chiamato subito prima dell'esecuzione di uno step attivo.
+     * Called right before an enabled step is executed.
      *
-     * @param event evento di avvio dello step
+     * @param event the step start event
      */
     default void onStepStarted(StepStarted<? extends C> event) {
     }
 
     /**
-     * Chiamato quando uno step viene saltato perché disattivato.
+     * Called when a step is skipped because it is disabled.
      *
-     * @param event evento di step saltato
+     * @param event the step skipped event
      */
     default void onStepSkipped(StepSkipped<? extends C> event) {
     }
 
     /**
-     * Chiamato quando uno step termina normalmente.
+     * Called when a step completes normally.
      *
-     * @param event evento di completamento dello step
+     * @param event the step completion event
      */
     default void onStepCompleted(StepCompleted<? extends C> event) {
     }
 
     /**
-     * Chiamato quando uno step fallisce, prima di {@link #onPipelineFailed(PipelineFailed)}.
+     * Called when a step fails, before {@link #onPipelineFailed(PipelineFailed)}.
      *
-     * @param event evento di fallimento dello step
+     * @param event the step failure event
      */
     default void onStepFailed(StepFailed<? extends C> event) {
     }
 
     /**
-     * Chiamato quando l'esecuzione termina senza errori.
+     * Called when the execution finishes without errors.
      *
-     * @param event evento di completamento della pipeline
+     * @param event the pipeline completion event
      */
     default void onPipelineCompleted(PipelineCompleted<? extends C> event) {
     }
 
     /**
-     * Chiamato quando l'esecuzione si interrompe per il fallimento di uno step.
+     * Called when the execution stops because a step failed.
      *
-     * @param event evento di fallimento della pipeline
+     * @param event the pipeline failure event
      */
     default void onPipelineFailed(PipelineFailed<? extends C> event) {
     }

@@ -23,16 +23,16 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
- * Sequenza ordinata e immutabile di {@link Step} con un nome, eseguita con {@link #run(Object)}.
+ * An ordered, immutable sequence of named {@link Step}s, executed with {@link #run(Object)}.
  *
- * <p>L'esecuzione è fail-fast: il primo step che lancia un'eccezione interrompe la pipeline e
- * l'eccezione viene propagata al chiamante come {@link PipelineException}.
+ * <p>Execution is fail-fast: the first step that throws stops the pipeline, and the exception
+ * is propagated to the caller as a {@link PipelineException}.
  *
- * <p>{@code Pipeline} è immutabile e thread-safe: la stessa istanza può eseguire {@code run}
- * concorrentemente su contesti diversi. Il contesto non viene condiviso tra esecuzioni e non deve
- * essere thread-safe.
+ * <p>{@code Pipeline} is immutable and thread-safe: the same instance can execute {@code run}
+ * concurrently on different contexts. The context is not shared between executions and does not
+ * need to be thread-safe.
  *
- * @param <C> tipo del contesto
+ * @param <C> the context type
  */
 public final class Pipeline<C> {
 
@@ -57,46 +57,47 @@ public final class Pipeline<C> {
     }
 
     /**
-     * Crea un builder per una pipeline con il nome indicato.
+     * Creates a builder for a pipeline with the given name.
      *
-     * @param name nome della pipeline, in kebab-case ({@code ^[a-z0-9]+(-[a-z0-9]+)*$})
-     * @param <C>  tipo del contesto
-     * @return un nuovo builder
-     * @throws NullPointerException     se {@code name} è null
-     * @throws IllegalArgumentException se {@code name} non è in kebab-case
+     * @param name the pipeline name, in kebab-case ({@code ^[a-z0-9]+(-[a-z0-9]+)*$})
+     * @param <C>  the context type
+     * @return a new builder
+     * @throws NullPointerException     if {@code name} is null
+     * @throws IllegalArgumentException if {@code name} is not kebab-case
      */
     public static <C> Builder<C> builder(String name) {
         return new Builder<>(requireKebabCase(name, "pipeline name"));
     }
 
     /**
-     * Nome della pipeline.
+     * The pipeline name.
      *
-     * @return il nome della pipeline
+     * @return the pipeline name
      */
     public String name() {
         return name;
     }
 
     /**
-     * Nomi degli step nell'ordine di esecuzione.
+     * The step names, in execution order.
      *
-     * @return lista non modificabile dei nomi degli step
+     * @return an unmodifiable list of the step names
      */
     public List<String> stepNames() {
         return stepNames;
     }
 
     /**
-     * Esegue la pipeline: valuta l'attivazione di ogni step, in ordine, ed esegue quelli attivi.
+     * Runs the pipeline: evaluates the activation of each step, in order, and executes the
+     * enabled ones.
      *
-     * @param context contesto dell'esecuzione; non null
-     * @return la stessa istanza di contesto ricevuta
-     * @throws NullPointerException   se {@code context} è null
-     * @throws PipelineException      se uno step lancia una {@code PipelineException} (propagata
-     *                                come stessa istanza, localizzata)
-     * @throws StepExecutionException se uno step, o la valutazione della sua attivazione, lancia
-     *                                un'altra {@link RuntimeException}
+     * @param context the execution context; not null
+     * @return the same context instance that was passed in
+     * @throws NullPointerException   if {@code context} is null
+     * @throws PipelineException      if a step throws a {@code PipelineException} (propagated as
+     *                                the same instance, with its location set)
+     * @throws StepExecutionException if a step, or the evaluation of its activation, throws any
+     *                                other {@link RuntimeException}
      */
     public C run(C context) {
         Objects.requireNonNull(context, "context must not be null");
@@ -139,7 +140,7 @@ public final class Pipeline<C> {
         return context;
     }
 
-    /** Traduce l'eccezione, emette StepFailed e PipelineFailed e restituisce l'eccezione da lanciare. */
+    /** Translates the exception, emits StepFailed and PipelineFailed, and returns the exception to throw. */
     private PipelineException fail(String runId, C context, String stepName, int stepIndex,
                                    Duration stepDuration, long pipelineStart, RuntimeException e) {
         PipelineException error = translate(stepName, e);
@@ -175,10 +176,10 @@ public final class Pipeline<C> {
     }
 
     /**
-     * Builder di {@link Pipeline}. Non è thread-safe. Può essere riusato: {@link #build()} copia
-     * le liste, quindi le modifiche successive non toccano le pipeline già costruite.
+     * Builder for {@link Pipeline}. Not thread-safe. It can be reused: {@link #build()} copies
+     * the lists, so later changes do not affect pipelines that were already built.
      *
-     * @param <C> tipo del contesto
+     * @param <C> the context type
      */
     public static final class Builder<C> {
 
@@ -195,13 +196,13 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Aggiunge uno step in coda alla pipeline.
+         * Appends a step to the pipeline.
          *
-         * @param name nome dello step, in kebab-case e univoco all'interno della pipeline
-         * @param step logica dello step; non null
-         * @return questo builder
-         * @throws NullPointerException     se {@code name} o {@code step} sono null
-         * @throws IllegalArgumentException se {@code name} non è in kebab-case o è già usato
+         * @param name the step name, in kebab-case and unique within the pipeline
+         * @param step the step logic; not null
+         * @return this builder
+         * @throws NullPointerException     if {@code name} or {@code step} is null
+         * @throws IllegalArgumentException if {@code name} is not kebab-case or is already used
          */
         public Builder<C> step(String name, Step<C> step) {
             requireKebabCase(name, "step name");
@@ -215,11 +216,11 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Imposta l'attivazione degli step. Default: {@link StepActivation#ALWAYS}.
+         * Sets the step activation. Default: {@link StepActivation#ALWAYS}.
          *
-         * @param activation attivazione; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code activation} è null
+         * @param activation the activation; not null
+         * @return this builder
+         * @throws NullPointerException if {@code activation} is null
          */
         public Builder<C> activation(StepActivation activation) {
             this.activation = Objects.requireNonNull(activation, "activation must not be null");
@@ -227,12 +228,12 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Registra un listener. Può essere chiamato più volte: i listener vengono notificati
-         * nell'ordine di registrazione.
+         * Registers a listener. It can be called several times: listeners are notified in
+         * registration order.
          *
-         * @param listener listener da registrare; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code listener} è null
+         * @param listener the listener to register; not null
+         * @return this builder
+         * @throws NullPointerException if {@code listener} is null
          */
         public Builder<C> listener(PipelineListener<? super C> listener) {
             listeners.add(Objects.requireNonNull(listener, "listener must not be null"));
@@ -240,12 +241,12 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Imposta il comportamento in caso di eccezione lanciata da un listener.
+         * Sets what happens when a listener throws an exception.
          * Default: {@link ListenerErrorPolicy#LOG_AND_CONTINUE}.
          *
-         * @param policy policy da applicare; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code policy} è null
+         * @param policy the policy to apply; not null
+         * @return this builder
+         * @throws NullPointerException if {@code policy} is null
          */
         public Builder<C> listenerErrorPolicy(ListenerErrorPolicy policy) {
             this.listenerErrorPolicy = Objects.requireNonNull(policy, "listenerErrorPolicy must not be null");
@@ -253,12 +254,12 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Imposta il clock da cui viene letto {@code occurredAt} degli eventi.
+         * Sets the clock from which the {@code occurredAt} of events is read.
          * Default: {@link Clock#systemUTC()}.
          *
-         * @param clock clock da usare; non null
-         * @return questo builder
-         * @throws NullPointerException se {@code clock} è null
+         * @param clock the clock to use; not null
+         * @return this builder
+         * @throws NullPointerException if {@code clock} is null
          */
         public Builder<C> clock(Clock clock) {
             this.clock = Objects.requireNonNull(clock, "clock must not be null");
@@ -266,12 +267,12 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Imposta il generatore degli identificativi di esecuzione. Default: UUID casuale.
+         * Sets the supplier of run identifiers. Default: a random UUID.
          *
-         * @param runIdSupplier generatore, invocato una volta per esecuzione; non null e non deve
-         *                      restituire null
-         * @return questo builder
-         * @throws NullPointerException se {@code runIdSupplier} è null
+         * @param runIdSupplier the supplier, invoked once per execution; not null and must not
+         *                      return null
+         * @return this builder
+         * @throws NullPointerException if {@code runIdSupplier} is null
          */
         public Builder<C> runIdSupplier(Supplier<String> runIdSupplier) {
             this.runIdSupplier = Objects.requireNonNull(runIdSupplier, "runIdSupplier must not be null");
@@ -279,10 +280,10 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Costruisce la pipeline con la configurazione corrente.
+         * Builds the pipeline with the current configuration.
          *
-         * @return una nuova pipeline immutabile
-         * @throws IllegalStateException se non è stato aggiunto alcuno step
+         * @return a new immutable pipeline
+         * @throws IllegalStateException if no step has been added
          */
         public Pipeline<C> build() {
             if (steps.isEmpty()) {

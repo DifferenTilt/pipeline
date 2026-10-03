@@ -12,7 +12,7 @@ import com.dtilt.pipeline.event.StepStarted;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** Listener di test che raccoglie tutti gli eventi ricevuti tramite {@code onEvent}. */
+/** Test listener that collects every event received through {@code onEvent}. */
 final class RecordingListener<C> implements PipelineListener<C> {
 
     final List<PipelineEvent<? extends C>> events = new CopyOnWriteArrayList<>();
@@ -22,7 +22,7 @@ final class RecordingListener<C> implements PipelineListener<C> {
         events.add(event);
     }
 
-    /** Descrizioni compatte degli eventi ricevuti, nell'ordine di ricezione. */
+    /** Compact descriptions of the received events, in the order they were received. */
     List<String> descriptions() {
         return events.stream().map(RecordingListener::describe).toList();
     }

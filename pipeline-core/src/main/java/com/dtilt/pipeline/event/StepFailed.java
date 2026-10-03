@@ -5,21 +5,21 @@ import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Emesso quando uno step fallisce, subito prima di {@link PipelineFailed}.
+ * Emitted when a step fails, right before {@link PipelineFailed}.
  *
- * <p>Di norma è preceduto da {@link StepStarted} per lo stesso step. Unica eccezione: se è la
- * valutazione dell'attivazione dello step a lanciare un'eccezione, {@code StepFailed} viene
- * emesso senza un {@code StepStarted} precedente e con durata {@link Duration#ZERO}.
+ * <p>It is normally preceded by {@link StepStarted} for the same step. The one exception: if it
+ * is the evaluation of the step's activation that throws, {@code StepFailed} is emitted without a
+ * preceding {@code StepStarted} and with a duration of {@link Duration#ZERO}.
  *
- * @param pipeline   nome della pipeline
- * @param runId      identificativo dell'esecuzione, uguale per tutti gli eventi della stessa esecuzione
- * @param occurredAt istante dell'evento, letto dal {@code Clock} configurato
- * @param context    contesto dell'esecuzione; i listener non devono modificarlo
- * @param step       nome dello step
- * @param stepIndex  posizione dello step nella pipeline, a partire da 0, contando anche gli step saltati
- * @param duration   durata dello step, misurata con {@code System.nanoTime()}
- * @param error      eccezione già tradotta e localizzata: la stessa istanza lanciata al chiamante
- * @param <C>        tipo del contesto
+ * @param pipeline   the pipeline name
+ * @param runId      the run identifier, the same for all events of one execution
+ * @param occurredAt the instant of the event, read from the configured {@code Clock}
+ * @param context    the execution context; listeners must not modify it
+ * @param step       the step name
+ * @param stepIndex  the position of the step in the pipeline, starting from 0 and counting skipped steps
+ * @param duration   the duration of the step, measured with {@code System.nanoTime()}
+ * @param error      the exception, already translated and located: the same instance thrown to the caller
+ * @param <C>        the context type
  */
 public record StepFailed<C>(String pipeline, String runId, Instant occurredAt, C context,
                             String step, int stepIndex, Duration duration, PipelineException error)

@@ -3,24 +3,24 @@ package com.dtilt.pipeline.exception;
 import java.util.Objects;
 
 /**
- * Errore tecnico inatteso avvenuto durante l'esecuzione di uno step. Viene creata dalla pipeline
- * quando uno step (o la valutazione della sua attivazione) lancia una {@link RuntimeException}
- * che non è una {@link PipelineException}.
+ * An unexpected technical error that occurred while executing a step. It is created by the
+ * pipeline when a step (or the evaluation of its activation) throws a {@link RuntimeException}
+ * that is not a {@link PipelineException}.
  *
- * <p>È sempre localizzata e {@link #getCause()} restituisce l'eccezione originale.
+ * <p>It always has a location, and {@link #getCause()} returns the original exception.
  */
 public class StepExecutionException extends PipelineException {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Crea l'eccezione per lo step indicato.
+     * Creates the exception for the given step.
      *
-     * @param pipeline nome della pipeline in cui è avvenuto l'errore; non null
-     * @param step     nome dello step in cui è avvenuto l'errore; non null
-     * @param cause    eccezione originale; non null
+     * @param pipeline the name of the pipeline in which the error occurred; not null
+     * @param step     the name of the step in which the error occurred; not null
+     * @param cause    the original exception; not null
      */
-    // locate è final e si limita ad assegnare due campi: nessuna fuga reale di this.
+    // locate is final and only assigns two fields: there is no real escape of this.
     @SuppressWarnings("this-escape")
     public StepExecutionException(String pipeline, String step, Throwable cause) {
         super(message(pipeline, step, cause), cause);

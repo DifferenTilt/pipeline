@@ -65,7 +65,7 @@ class PipelineConcurrencyTest {
             assertThat(context.result).isEqualTo(i * 2 + 1);
             assertThat(context.trace).containsExactly("double", "increment");
         }
-        // 7 eventi per esecuzione: avvio, 2 x (start + completed), 1 skipped, completamento.
+        // 7 events per execution: start, 2 x (started + completed), 1 skipped, completion.
         assertThat(listener.events).hasSize(RUNS * 7);
         assertThat(listener.events.stream().map(event -> event.runId()).distinct()).hasSize(RUNS);
     }

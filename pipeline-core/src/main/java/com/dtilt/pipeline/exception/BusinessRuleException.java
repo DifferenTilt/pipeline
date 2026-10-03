@@ -7,53 +7,53 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Errore di business atteso, lanciato da uno {@link Step} quando una regola non è rispettata.
+ * An expected business error, thrown by a {@link Step} when a rule is not satisfied.
  *
- * <p>La classe non è {@code final}: i progetti possono definire sottoclassi specifiche.
+ * <p>The class is not {@code final}: projects can define their own specific subclasses.
  */
 public class BusinessRuleException extends PipelineException {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * Categoria dell'errore, indipendente dal trasporto. Sono gli adapter (es. uno starter Spring)
-     * a tradurla in uno status HTTP o in un comportamento di retry.
+     * The error category, independent of the transport. It is up to adapters (e.g. a Spring
+     * starter) to translate it into an HTTP status or a retry behaviour.
      */
     public enum Category {
-        /** I dati in ingresso non sono validi. */
+        /** The input data is not valid. */
         INVALID_INPUT,
-        /** L'operazione è in conflitto con lo stato corrente. */
+        /** The operation conflicts with the current state. */
         CONFLICT,
-        /** Una risorsa richiesta non esiste. */
+        /** A requested resource does not exist. */
         NOT_FOUND,
-        /** L'operazione non è permessa. */
+        /** The operation is not allowed. */
         FORBIDDEN
     }
 
     private final String code;
     private final Category category;
-    // La mappa è serializzabile; i valori lo sono solo se lo sono quelli forniti dal chiamante.
+    // The map is serializable; its values are only if the ones supplied by the caller are.
     @SuppressWarnings("serial")
     private final Map<String, Object> details;
 
     /**
-     * Crea un errore di business senza dettagli aggiuntivi.
+     * Creates a business error without additional details.
      *
-     * @param code     codice stabile e leggibile da macchina; non null né blank
-     * @param category categoria dell'errore; non null
-     * @param message  messaggio leggibile; non null
+     * @param code     a stable, machine-readable code; not null or blank
+     * @param category the error category; not null
+     * @param message  a human-readable message; not null
      */
     public BusinessRuleException(String code, Category category, String message) {
         this(code, category, message, Map.of());
     }
 
     /**
-     * Crea un errore di business con dettagli aggiuntivi.
+     * Creates a business error with additional details.
      *
-     * @param code     codice stabile e leggibile da macchina; non null né blank
-     * @param category categoria dell'errore; non null
-     * @param message  messaggio leggibile; non null
-     * @param details  dettagli aggiuntivi, copiati in modo difensivo; non null
+     * @param code     a stable, machine-readable code; not null or blank
+     * @param category the error category; not null
+     * @param message  a human-readable message; not null
+     * @param details  additional details, defensively copied; not null
      */
     public BusinessRuleException(String code, Category category, String message,
                                  Map<String, Object> details) {
@@ -69,27 +69,27 @@ public class BusinessRuleException extends PipelineException {
     }
 
     /**
-     * Codice stabile e leggibile da macchina, es. {@code "PRODUCT_NAME_DUPLICATE"}.
+     * A stable, machine-readable code, e.g. {@code "PRODUCT_NAME_DUPLICATE"}.
      *
-     * @return il codice dell'errore, mai null né blank
+     * @return the error code, never null or blank
      */
     public String getCode() {
         return code;
     }
 
     /**
-     * Categoria dell'errore.
+     * The error category.
      *
-     * @return la categoria, mai null
+     * @return the category, never null
      */
     public Category getCategory() {
         return category;
     }
 
     /**
-     * Dettagli aggiuntivi.
+     * Additional details.
      *
-     * @return mappa non modificabile, mai null (vuota di default)
+     * @return an unmodifiable map, never null (empty by default)
      */
     public Map<String, Object> getDetails() {
         return details;

@@ -1,18 +1,18 @@
 package com.dtilt.pipeline.listener;
 
-/** Comportamento della pipeline quando un {@link PipelineListener} lancia un'eccezione. */
+/** What the pipeline does when a {@link PipelineListener} throws an exception. */
 public enum ListenerErrorPolicy {
 
     /**
-     * L'eccezione del listener viene loggata a livello {@code WARNING}; gli altri listener vengono
-     * comunque notificati e l'esecuzione della pipeline prosegue senza variazioni. È il default:
-     * un listener rotto non deve mai cambiare l'esito di una pipeline.
+     * The listener's exception is logged at {@code WARNING}; the other listeners are still
+     * notified and the pipeline carries on unchanged. This is the default: a broken listener
+     * must never change the outcome of a pipeline.
      */
     LOG_AND_CONTINUE,
 
     /**
-     * L'eccezione del listener si propaga subito al chiamante così com'è, la pipeline si
-     * interrompe e non vengono emessi altri eventi. Pensata per i test.
+     * The listener's exception is propagated to the caller immediately and as is, the pipeline
+     * stops and no further events are emitted. Intended for tests.
      */
     PROPAGATE
 }

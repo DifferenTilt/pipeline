@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 class PipelineListenerTest {
 
-    /** Contesto usato solo per verificare la compatibilità dei tipi generici. */
+    /** Context used only to check the compatibility of generic types. */
     private static final class CreateProductContext {
     }
 

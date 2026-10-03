@@ -8,8 +8,8 @@ import java.lang.System.Logger.Level;
 import java.util.List;
 
 /**
- * Notifica gli eventi ai listener nell'ordine di registrazione, applicando la
- * {@link ListenerErrorPolicy}. Immutabile e thread-safe.
+ * Notifies listeners of events in registration order, applying the
+ * {@link ListenerErrorPolicy}. Immutable and thread-safe.
  */
 final class ListenerChain<C> {
 
