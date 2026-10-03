@@ -4,11 +4,9 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md`.
 
 ## Progetto
 
-- **Package base `com.dtilt.pipeline`.** La tabella dei parametri (§1) indica `com.dtilt.pipeline`,
-  mentre il resto della specifica (layout §3, struttura delle directory, nome del logger §6.5) usa
-  ancora `com.example.pipeline`. La tabella è trattata come fonte di verità: package
-  `com.dtilt.pipeline` e `com.dtilt.pipeline.event`, logger `com.dtilt.pipeline`. Il `groupId`
-  è `com.dtilt.pipeline` (scelta dell'utente, al posto del segnaposto `com.example` della tabella).
+- **groupId `com.dtilt.pipeline`.** Scelto al posto del segnaposto `com.example` della specifica
+  originale, per coerenza con il package base `com.dtilt.pipeline`. Le coordinate del modulo sono
+  `com.dtilt.pipeline:pipeline-core`.
 - **Radice del progetto = `pipeline-parent`.** Il `pom.xml` del parent sta nella directory radice
   `pipeline/`, che contiene anche le specifiche; i moduli stanno nelle sottodirectory
   (`pipeline-core/` e, in futuro, `pipeline-spring-boot-starter/`).
