@@ -2,8 +2,8 @@ package com.dtilt.pipeline.spring;
 
 import com.dtilt.pipeline.PipelineFactory;
 import com.dtilt.pipeline.StepActivation;
-import com.dtilt.pipeline.event.LoggingPipelineListener;
-import com.dtilt.pipeline.event.PipelineListener;
+import com.dtilt.pipeline.listener.LoggingPipelineListener;
+import com.dtilt.pipeline.listener.PipelineListener;
 import java.time.Clock;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;

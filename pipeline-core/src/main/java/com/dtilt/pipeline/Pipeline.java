@@ -1,9 +1,9 @@
 package com.dtilt.pipeline;
 
-import com.dtilt.pipeline.event.ListenerErrorPolicy;
+import com.dtilt.pipeline.listener.ListenerErrorPolicy;
 import com.dtilt.pipeline.event.PipelineCompleted;
 import com.dtilt.pipeline.event.PipelineFailed;
-import com.dtilt.pipeline.event.PipelineListener;
+import com.dtilt.pipeline.listener.PipelineListener;
 import com.dtilt.pipeline.event.PipelineStarted;
 import com.dtilt.pipeline.event.StepCompleted;
 import com.dtilt.pipeline.event.StepFailed;

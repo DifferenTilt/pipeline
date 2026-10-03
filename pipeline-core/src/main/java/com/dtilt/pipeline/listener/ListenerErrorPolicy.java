@@ -1,4 +1,4 @@
-package com.dtilt.pipeline.event;
+package com.dtilt.pipeline.listener;
 
 /** Comportamento della pipeline quando un {@link PipelineListener} lancia un'eccezione. */
 public enum ListenerErrorPolicy {

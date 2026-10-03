@@ -1,5 +1,6 @@
 package com.dtilt.pipeline.event;
 
+import com.dtilt.pipeline.listener.PipelineListener;
 import java.time.Instant;
 
 /**

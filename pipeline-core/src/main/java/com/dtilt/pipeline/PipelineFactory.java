@@ -1,7 +1,7 @@
 package com.dtilt.pipeline;
 
-import com.dtilt.pipeline.event.ListenerErrorPolicy;
-import com.dtilt.pipeline.event.PipelineListener;
+import com.dtilt.pipeline.listener.ListenerErrorPolicy;
+import com.dtilt.pipeline.listener.PipelineListener;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;

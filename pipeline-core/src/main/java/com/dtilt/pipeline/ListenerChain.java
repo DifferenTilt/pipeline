@@ -1,8 +1,8 @@
 package com.dtilt.pipeline;
 
-import com.dtilt.pipeline.event.ListenerErrorPolicy;
+import com.dtilt.pipeline.listener.ListenerErrorPolicy;
 import com.dtilt.pipeline.event.PipelineEvent;
-import com.dtilt.pipeline.event.PipelineListener;
+import com.dtilt.pipeline.listener.PipelineListener;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.List;

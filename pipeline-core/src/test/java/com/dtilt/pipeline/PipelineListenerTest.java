@@ -5,9 +5,9 @@ import static com.dtilt.pipeline.TestContext.tracing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.dtilt.pipeline.event.ListenerErrorPolicy;
+import com.dtilt.pipeline.listener.ListenerErrorPolicy;
 import com.dtilt.pipeline.event.PipelineEvent;
-import com.dtilt.pipeline.event.PipelineListener;
+import com.dtilt.pipeline.listener.PipelineListener;
 import com.dtilt.pipeline.event.StepCompleted;
 import com.dtilt.pipeline.event.StepSkipped;
 import com.dtilt.pipeline.exception.StepExecutionException;

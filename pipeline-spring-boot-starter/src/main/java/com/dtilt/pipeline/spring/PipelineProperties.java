@@ -1,6 +1,6 @@
 package com.dtilt.pipeline.spring;
 
-import com.dtilt.pipeline.event.ListenerErrorPolicy;
+import com.dtilt.pipeline.listener.ListenerErrorPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;

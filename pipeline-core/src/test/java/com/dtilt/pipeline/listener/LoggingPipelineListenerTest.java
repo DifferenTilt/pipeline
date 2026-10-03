@@ -1,11 +1,11 @@
-package com.dtilt.pipeline.event;
+package com.dtilt.pipeline.listener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.dtilt.pipeline.Pipeline;
 import com.dtilt.pipeline.exception.BusinessRuleException;
 import com.dtilt.pipeline.exception.BusinessRuleException.Category;
-import com.dtilt.pipeline.Pipeline;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;

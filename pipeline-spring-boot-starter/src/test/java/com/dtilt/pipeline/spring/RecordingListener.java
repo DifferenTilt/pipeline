@@ -1,7 +1,7 @@
 package com.dtilt.pipeline.spring;
 
 import com.dtilt.pipeline.event.PipelineEvent;
-import com.dtilt.pipeline.event.PipelineListener;
+import com.dtilt.pipeline.listener.PipelineListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
