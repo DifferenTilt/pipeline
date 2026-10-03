@@ -14,6 +14,7 @@ import com.dtilt.pipeline.event.PipelineFailed;
 import com.dtilt.pipeline.event.StepCompleted;
 import com.dtilt.pipeline.event.StepFailed;
 import com.dtilt.pipeline.exception.StepExecutionException;
+import com.dtilt.pipeline.step.StepActivation;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;

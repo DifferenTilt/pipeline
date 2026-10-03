@@ -4,6 +4,7 @@ import static com.dtilt.pipeline.TestContext.tracing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.dtilt.pipeline.step.StepActivation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;

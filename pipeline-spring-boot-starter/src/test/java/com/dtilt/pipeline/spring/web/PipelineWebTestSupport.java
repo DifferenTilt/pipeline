@@ -3,7 +3,7 @@ package com.dtilt.pipeline.spring.web;
 import com.dtilt.pipeline.exception.BusinessRuleException;
 import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.Pipeline;
-import com.dtilt.pipeline.Step;
+import com.dtilt.pipeline.step.Step;
 import java.util.Map;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

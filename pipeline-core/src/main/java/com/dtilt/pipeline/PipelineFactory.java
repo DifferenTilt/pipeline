@@ -2,6 +2,7 @@ package com.dtilt.pipeline;
 
 import com.dtilt.pipeline.listener.ListenerErrorPolicy;
 import com.dtilt.pipeline.listener.PipelineListener;
+import com.dtilt.pipeline.step.StepActivation;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;

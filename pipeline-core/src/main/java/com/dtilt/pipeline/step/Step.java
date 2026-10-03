@@ -1,5 +1,6 @@
-package com.dtilt.pipeline;
+package com.dtilt.pipeline.step;
 
+import com.dtilt.pipeline.Pipeline;
 import com.dtilt.pipeline.exception.BusinessRuleException;
 
 /**

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.dtilt.pipeline.Pipeline;
 import com.dtilt.pipeline.PipelineFactory;
-import com.dtilt.pipeline.StepActivation;
+import com.dtilt.pipeline.step.StepActivation;
 import com.dtilt.pipeline.listener.LoggingPipelineListener;
 import com.dtilt.pipeline.event.PipelineEvent;
 import com.dtilt.pipeline.listener.PipelineListener;

@@ -1,7 +1,7 @@
 package com.dtilt.pipeline.spring;
 
 import com.dtilt.pipeline.PipelineFactory;
-import com.dtilt.pipeline.StepActivation;
+import com.dtilt.pipeline.step.StepActivation;
 import com.dtilt.pipeline.listener.LoggingPipelineListener;
 import com.dtilt.pipeline.listener.PipelineListener;
 import java.time.Clock;

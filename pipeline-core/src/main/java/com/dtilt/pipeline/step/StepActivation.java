@@ -1,4 +1,4 @@
-package com.dtilt.pipeline;
+package com.dtilt.pipeline.step;
 
 import java.util.HashMap;
 import java.util.Map;
