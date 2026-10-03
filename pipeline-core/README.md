@@ -19,7 +19,8 @@ Pipeline and step names are kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`).
 
 | Package | Contents |
 |---|---|
-| `com.dtilt.pipeline` | `Pipeline`, `PipelineFactory`, `Step`, `StepActivation` |
+| `com.dtilt.pipeline` | `Pipeline`, `PipelineFactory` |
+| `com.dtilt.pipeline.step` | `Step`, `StepActivation` |
 | `com.dtilt.pipeline.exception` | `PipelineException`, `BusinessRuleException`, `StepExecutionException` |
 | `com.dtilt.pipeline.event` | `PipelineEvent` and the event records (`PipelineStarted`, `StepCompleted`, ...) |
 | `com.dtilt.pipeline.listener` | `PipelineListener`, `ListenerErrorPolicy`, `LoggingPipelineListener` |
