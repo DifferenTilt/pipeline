@@ -10,7 +10,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class PipelineProperties {
 
     /**
-     * Disabled steps, in the form &lt;pipeline&gt;.&lt;step&gt; (for example create-product.date-range).
+     * Disabled steps, each in the form pipeline-name.step-name (for example
+     * create-product.date-range).
      */
     private List<String> disabledSteps = new ArrayList<>();
 
