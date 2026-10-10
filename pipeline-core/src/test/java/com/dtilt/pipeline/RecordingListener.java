@@ -13,21 +13,31 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Test listener that collects every event received through {@code onEvent}. */
-final class RecordingListener<C> implements PipelineListener<C> {
+public final class RecordingListener<C> implements PipelineListener<C> {
 
-    final List<PipelineEvent<? extends C>> events = new CopyOnWriteArrayList<>();
+    public final List<PipelineEvent<? extends C>> events = new CopyOnWriteArrayList<>();
 
     @Override
     public void onEvent(PipelineEvent<? extends C> event) {
         events.add(event);
     }
 
+    /** A listener that appends {@code <name>:<event type>} to {@code calls} for every event. */
+    public static <C> PipelineListener<C> named(String name, List<String> calls) {
+        return new PipelineListener<>() {
+            @Override
+            public void onEvent(PipelineEvent<? extends C> event) {
+                calls.add(name + ":" + event.getClass().getSimpleName());
+            }
+        };
+    }
+
     /** Compact descriptions of the received events, in the order they were received. */
-    List<String> descriptions() {
+    public List<String> descriptions() {
         return events.stream().map(RecordingListener::describe).toList();
     }
 
-    static String describe(PipelineEvent<?> event) {
+    public static String describe(PipelineEvent<?> event) {
         if (event instanceof PipelineStarted<?>) {
             return "PipelineStarted";
         } else if (event instanceof StepStarted<?> e) {

@@ -1,33 +1,25 @@
 package com.dtilt.pipeline;
 
+import static com.dtilt.pipeline.RecordingListener.named;
 import static com.dtilt.pipeline.TestContext.failing;
 import static com.dtilt.pipeline.TestContext.tracing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.dtilt.pipeline.listener.ListenerErrorPolicy;
 import com.dtilt.pipeline.event.PipelineEvent;
-import com.dtilt.pipeline.listener.PipelineListener;
 import com.dtilt.pipeline.event.StepCompleted;
-import com.dtilt.pipeline.event.StepSkipped;
 import com.dtilt.pipeline.exception.StepExecutionException;
+import com.dtilt.pipeline.listener.ListenerErrorPolicy;
+import com.dtilt.pipeline.listener.PipelineListener;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class PipelineListenerTest {
+/** {@link ListenerChain} is exercised through {@link Pipeline}, which is its only caller. */
+class ListenerChainTest {
 
     /** Context used only to check the compatibility of generic types. */
     private static final class CreateProductContext {
-    }
-
-    private static <C> PipelineListener<C> named(String name, List<String> calls) {
-        return new PipelineListener<>() {
-            @Override
-            public void onEvent(PipelineEvent<? extends C> event) {
-                calls.add(name + ":" + event.getClass().getSimpleName());
-            }
-        };
     }
 
     private static PipelineListener<Object> broken(RuntimeException error) {
@@ -56,90 +48,6 @@ class PipelineListenerTest {
                 "first:StepStarted", "second:StepStarted", "third:StepStarted",
                 "first:StepCompleted", "second:StepCompleted", "third:StepCompleted",
                 "first:PipelineCompleted", "second:PipelineCompleted", "third:PipelineCompleted");
-    }
-
-    @Test
-    void factoryListenersAreNotifiedBeforePipelineListeners() {
-        List<String> calls = new ArrayList<>();
-        PipelineFactory factory = PipelineFactory.builder()
-                .listener(named("global-1", calls))
-                .listener(named("global-2", calls))
-                .build();
-        Pipeline<TestContext> pipeline = factory.<TestContext>pipeline("p")
-                .listener(named("local", calls))
-                .step("a", tracing("a"))
-                .build();
-
-        pipeline.run(new TestContext());
-
-        assertThat(calls).startsWith(
-                "global-1:PipelineStarted", "global-2:PipelineStarted", "local:PipelineStarted");
-        assertThat(calls).endsWith(
-                "global-1:PipelineCompleted", "global-2:PipelineCompleted", "local:PipelineCompleted");
-    }
-
-    @Test
-    void listenerOverridingOnlyOnEventReceivesAllEvents() {
-        RecordingListener<TestContext> listener = new RecordingListener<>();
-        Pipeline<TestContext> pipeline = Pipeline.<TestContext>builder("p")
-                .step("a", tracing("a"))
-                .step("b", tracing("b"))
-                .step("c", failing(new IllegalStateException("boom")))
-                .activation((pipelineName, step) -> !step.equals("b"))
-                .listener(listener)
-                .build();
-
-        catchThrowable(() -> pipeline.run(new TestContext()));
-
-        assertThat(listener.descriptions()).containsExactly(
-                "PipelineStarted",
-                "StepStarted(a, 0)", "StepCompleted(a, 0)",
-                "StepSkipped(b, 1)",
-                "StepStarted(c, 2)", "StepFailed(c, 2)",
-                "PipelineFailed(failedStep=c)");
-    }
-
-    @Test
-    void listenerOverridingASpecificMethodReceivesOnlyThatEventType() {
-        List<PipelineEvent<?>> received = new ArrayList<>();
-        PipelineListener<TestContext> listener = new PipelineListener<>() {
-            @Override
-            public void onStepSkipped(StepSkipped<? extends TestContext> event) {
-                received.add(event);
-            }
-        };
-        Pipeline<TestContext> pipeline = Pipeline.<TestContext>builder("p")
-                .step("a", tracing("a"))
-                .step("b", tracing("b"))
-                .activation((pipelineName, step) -> !step.equals("b"))
-                .listener(listener)
-                .build();
-
-        pipeline.run(new TestContext());
-
-        assertThat(received).hasSize(1);
-        assertThat(received.get(0)).isInstanceOf(StepSkipped.class);
-        assertThat(RecordingListener.describe(received.get(0))).isEqualTo("StepSkipped(b, 1)");
-    }
-
-    @Test
-    void defaultOnEventDispatchesEveryEventTypeToItsSpecificMethod() {
-        List<String> calls = new ArrayList<>();
-        PipelineListener<TestContext> listener = new DispatchRecordingListener(calls);
-        Pipeline.Builder<TestContext> builder = Pipeline.<TestContext>builder("p")
-                .step("a", tracing("a"))
-                .step("b", tracing("b"))
-                .activation((pipelineName, step) -> !step.equals("b"))
-                .listener(listener);
-
-        builder.build().run(new TestContext());
-        catchThrowable(() -> builder.step("c", failing(new IllegalStateException("boom")))
-                .build().run(new TestContext()));
-
-        assertThat(calls).containsExactly(
-                "pipelineStarted", "stepStarted", "stepCompleted", "stepSkipped", "pipelineCompleted",
-                "pipelineStarted", "stepStarted", "stepCompleted", "stepSkipped",
-                "stepStarted", "stepFailed", "pipelineFailed");
     }
 
     @Test

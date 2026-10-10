@@ -124,18 +124,6 @@ class PipelineBuilderTest {
     }
 
     @Test
-    void factoryBuilderRejectsNullArguments() {
-        PipelineFactory.Builder builder = PipelineFactory.builder();
-
-        assertThatThrownBy(() -> builder.activation(null)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> builder.listener(null)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> builder.listenerErrorPolicy(null)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> builder.clock(null)).isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> builder.build().pipeline("Not-Kebab"))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
     void buildWithoutStepsThrowsIllegalStateException() {
         Pipeline.Builder<TestContext> builder = Pipeline.builder("p");
 

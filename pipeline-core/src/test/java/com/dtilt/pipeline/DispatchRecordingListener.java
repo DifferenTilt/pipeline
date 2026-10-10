@@ -11,11 +11,11 @@ import com.dtilt.pipeline.event.StepStarted;
 import java.util.List;
 
 /** Test listener that overrides every specific method but not {@code onEvent}. */
-final class DispatchRecordingListener implements PipelineListener<TestContext> {
+public final class DispatchRecordingListener implements PipelineListener<TestContext> {
 
     private final List<String> calls;
 
-    DispatchRecordingListener(List<String> calls) {
+    public DispatchRecordingListener(List<String> calls) {
         this.calls = calls;
     }
 

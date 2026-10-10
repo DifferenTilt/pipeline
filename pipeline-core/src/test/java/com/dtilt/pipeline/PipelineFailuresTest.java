@@ -3,7 +3,6 @@ package com.dtilt.pipeline;
 import static com.dtilt.pipeline.TestContext.failing;
 import static com.dtilt.pipeline.TestContext.tracing;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.dtilt.pipeline.exception.BusinessRuleException;
@@ -11,11 +10,9 @@ import com.dtilt.pipeline.exception.BusinessRuleException.Category;
 import com.dtilt.pipeline.event.PipelineFailed;
 import com.dtilt.pipeline.event.StepFailed;
 import com.dtilt.pipeline.exception.StepExecutionException;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-class PipelineExceptionTest {
+class PipelineFailuresTest {
 
     private static BusinessRuleException businessError() {
         return new BusinessRuleException("PRODUCT_NAME_DUPLICATE", Category.CONFLICT, "duplicate name");
@@ -135,59 +132,5 @@ class PipelineExceptionTest {
         assertThat(listener.events)
                 .noneMatch(event -> event instanceof StepFailed<?> || event instanceof PipelineFailed<?>);
         assertThat(listener.descriptions()).containsExactly("PipelineStarted", "StepStarted(a, 0)");
-    }
-
-    @Test
-    void businessRuleExceptionCreatedOutsideAPipelineIsNotLocated() {
-        BusinessRuleException error = businessError();
-
-        assertThat(error.getPipeline()).isNull();
-        assertThat(error.getStep()).isNull();
-        assertThat(error.getCode()).isEqualTo("PRODUCT_NAME_DUPLICATE");
-        assertThat(error.getCategory()).isEqualTo(Category.CONFLICT);
-        assertThat(error).hasMessage("duplicate name");
-    }
-
-    @Test
-    void detailsAreEmptyByDefaultAndUnmodifiable() {
-        BusinessRuleException withoutDetails = businessError();
-        Map<String, Object> source = new HashMap<>(Map.of("name", "widget"));
-        BusinessRuleException withDetails =
-                new BusinessRuleException("CODE", Category.INVALID_INPUT, "message", source);
-
-        source.put("later", "change");
-
-        assertThat(withoutDetails.getDetails()).isEmpty();
-        assertThatThrownBy(() -> withoutDetails.getDetails().put("k", "v"))
-                .isInstanceOf(UnsupportedOperationException.class);
-        assertThat(withDetails.getDetails()).containsExactly(Map.entry("name", "widget"));
-        assertThatThrownBy(() -> withDetails.getDetails().put("k", "v"))
-                .isInstanceOf(UnsupportedOperationException.class);
-    }
-
-    @Test
-    void businessRuleExceptionValidatesItsArguments() {
-        assertThatThrownBy(() -> new BusinessRuleException(null, Category.CONFLICT, "m"))
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new BusinessRuleException("  ", Category.CONFLICT, "m"))
-                .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new BusinessRuleException("CODE", null, "m"))
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new BusinessRuleException("CODE", Category.CONFLICT, null))
-                .isInstanceOf(NullPointerException.class);
-        assertThatThrownBy(() -> new BusinessRuleException("CODE", Category.CONFLICT, "m", null))
-                .isInstanceOf(NullPointerException.class);
-    }
-
-    @Test
-    void stepExecutionExceptionIsAlwaysLocated() {
-        RuntimeException cause = new RuntimeException("why");
-
-        StepExecutionException error = new StepExecutionException("p", "s", cause);
-        error.locate("other", "other");
-
-        assertThat(error.getPipeline()).isEqualTo("p");
-        assertThat(error.getStep()).isEqualTo("s");
-        assertThat(error).hasCause(cause).hasMessage("Step 's' of pipeline 'p' failed: why");
     }
 }

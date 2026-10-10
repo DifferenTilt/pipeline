@@ -1,27 +1,16 @@
 package com.dtilt.pipeline;
 
+import static com.dtilt.pipeline.TestContext.abc;
 import static com.dtilt.pipeline.TestContext.tracing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.dtilt.pipeline.step.StepActivation;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
 
-class PipelineExecutionTest {
-
-    private static Pipeline.Builder<TestContext> abc(String name) {
-        return Pipeline.<TestContext>builder(name)
-                .step("a", tracing("a"))
-                .step("b", tracing("b"))
-                .step("c", tracing("c"));
-    }
+class PipelineRunTest {
 
     @Test
     void executesStepsInRegistrationOrder() {
@@ -130,54 +119,5 @@ class PipelineExecutionTest {
         pipeline.run(new TestContext());
 
         assertThat(calls).containsExactly("a");
-    }
-
-    @Test
-    void disablingDisablesOnlyListedStepsOfListedPipeline() {
-        StepActivation activation = StepActivation.disabling(Map.of("first", Set.of("b")));
-
-        assertThat(abc("first").activation(activation).build().run(new TestContext()).trace)
-                .containsExactly("a", "c");
-        assertThat(abc("second").activation(activation).build().run(new TestContext()).trace)
-                .containsExactly("a", "b", "c");
-        assertThat(activation.isEnabled("first", "b")).isFalse();
-        assertThat(activation.isEnabled("first", "a")).isTrue();
-        assertThat(activation.isEnabled("second", "b")).isTrue();
-        assertThat(activation.isEnabled("unknown", "unknown")).isTrue();
-    }
-
-    @Test
-    void disablingCopiesTheMapDefensively() {
-        Set<String> disabled = new HashSet<>(Set.of("b"));
-        Map<String, Set<String>> source = new HashMap<>(Map.of("p", disabled));
-        StepActivation activation = StepActivation.disabling(source);
-
-        disabled.add("a");
-        source.put("other", Set.of("a"));
-
-        assertThat(activation.isEnabled("p", "a")).isTrue();
-        assertThat(activation.isEnabled("p", "b")).isFalse();
-        assertThat(activation.isEnabled("other", "a")).isTrue();
-    }
-
-    @Test
-    void alwaysEnablesEveryStep() {
-        assertThat(StepActivation.ALWAYS.isEnabled("any", "step")).isTrue();
-    }
-
-    @Test
-    void factoryAppliesSharedActivationAndAllowsOverride() {
-        PipelineFactory factory = PipelineFactory.builder()
-                .activation(StepActivation.disabling(Map.of("p", Set.of("b"))))
-                .build();
-
-        Pipeline.Builder<TestContext> shared = factory.<TestContext>pipeline("p")
-                .step("a", tracing("a")).step("b", tracing("b"));
-        Pipeline.Builder<TestContext> overridden = factory.<TestContext>pipeline("p")
-                .step("a", tracing("a")).step("b", tracing("b"))
-                .activation(StepActivation.ALWAYS);
-
-        assertThat(shared.build().run(new TestContext()).trace).containsExactly("a");
-        assertThat(overridden.build().run(new TestContext()).trace).containsExactly("a", "b");
     }
 }
