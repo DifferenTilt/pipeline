@@ -46,6 +46,43 @@ class PipelineDefinitionsValidatorTests {
     }
 
     @Test
+    void requiredStepCannotBeDisabled() {
+        contextRunner.withPropertyValues("pipeline.disabled-steps=update-product.save")
+                .run(context -> assertThat(StartupFailures.rootCause(context))
+                        .isInstanceOf(PipelineConfigurationException.class)
+                        .hasMessageContaining("'update-product.save'")
+                        .hasMessageContaining(
+                                "step 'save' is required in pipeline 'update-product' and cannot be disabled"));
+    }
+
+    @Test
+    void requiredStepPreventsStartupEvenWhenFailOnUnknownStepsIsFalse() {
+        contextRunner.withPropertyValues(
+                        "pipeline.disabled-steps=update-product.save",
+                        "pipeline.fail-on-unknown-steps=false")
+                .run(context -> assertThat(StartupFailures.rootCause(context))
+                        .isInstanceOf(PipelineConfigurationException.class)
+                        .hasMessageContaining("step 'save' is required in pipeline 'update-product'"));
+    }
+
+    @Test
+    void requiredStepIsReportedTogetherWithTheOtherProblems() {
+        contextRunner.withPropertyValues(
+                        "pipeline.disabled-steps=update-product.save,delete-product.audit,update-product.audit")
+                .run(context -> {
+                    Throwable failure = StartupFailures.rootCause(context);
+                    assertThat(failure).isInstanceOf(PipelineConfigurationException.class);
+                    String message = failure.getMessage();
+                    assertThat(message)
+                            .contains("step 'save' is required in pipeline 'update-product'")
+                            .contains("pipeline 'delete-product' does not exist")
+                            .doesNotContain("'update-product.audit'");
+                    assertThat(message.lines()).hasSize(3);
+                    assertThat(message.indexOf("is required")).isLessThan(message.indexOf("does not exist"));
+                });
+    }
+
+    @Test
     void allProblemsAreReportedInTheSameMessage() {
         contextRunner.withUserConfiguration(DuplicateConfig.class)
                 .withPropertyValues(
@@ -105,6 +142,7 @@ class PipelineDefinitionsValidatorTests {
         Pipeline<List<String>> updateProductPipeline(PipelineFactory factory) {
             return factory.<List<String>>pipeline("update-product")
                     .step("audit", trace -> trace.add("audit"))
+                    .requiredStep("save", trace -> trace.add("save"))
                     .build();
         }
     }

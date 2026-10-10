@@ -8,6 +8,8 @@ configurable steps that share a context.
 - **Context**: a typed, user-defined object, one per execution.
 - **Activation** (`StepActivation`): decides on every execution whether a step is enabled; disabled
   steps are skipped.
+- **Required step**: a step added with `requiredStep` instead of `step`; it is always executed and
+  the activation cannot disable it.
 - **Listener** (`PipelineListener`): receives lifecycle events (start, step, completion, failure)
   for logging, metrics and auditing.
 - **Fail-fast**: the first step that throws stops the pipeline, and the exception is propagated to
@@ -58,7 +60,7 @@ PipelineFactory factory = PipelineFactory.builder()
 Pipeline<CreateProductContext> createProduct = factory.<CreateProductContext>pipeline("create-product")
         .step("name-unique", new NameUniqueStep(repository))
         .step("date-range", new DateRangeStep())
-        .step("save-product", new SaveProductStep(repository))
+        .requiredStep("save-product", new SaveProductStep(repository))
         .build();
 
 try {
@@ -69,6 +71,23 @@ try {
     // technical error: e.getCause()
 }
 ```
+
+## Required steps
+
+Disabling a step does not check what the following steps, or the caller, expect to find in the
+context. A step the pipeline cannot do without (the one that persists the data, or the one that
+produces the result read after `run`) should be added with `requiredStep`:
+
+```java
+Pipeline.<UpdateProductContext>builder("update-product")
+        .step("audit", new AuditStep())                  // can be disabled
+        .requiredStep("save-product", new SaveStep())    // always executed
+        .build();
+```
+
+For a required step `StepActivation.isEnabled` is not called at all, so the guarantee holds for
+any activation, including custom ones that change at runtime. `Pipeline.requiredStepNames()` lists
+the required steps.
 
 ## Exceptions
 

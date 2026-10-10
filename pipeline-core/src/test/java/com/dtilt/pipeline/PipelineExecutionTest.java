@@ -95,6 +95,44 @@ class PipelineExecutionTest {
     }
 
     @Test
+    void requiredStepRunsEvenWhenTheActivationDisablesIt() {
+        RecordingListener<TestContext> listener = new RecordingListener<>();
+        Pipeline<TestContext> pipeline = Pipeline.<TestContext>builder("p")
+                .step("a", tracing("a"))
+                .requiredStep("b", tracing("b"))
+                .step("c", tracing("c"))
+                .activation((pipelineName, step) -> false)
+                .listener(listener)
+                .build();
+
+        assertThat(pipeline.run(new TestContext()).trace).containsExactly("b");
+        assertThat(listener.descriptions()).containsExactly(
+                "PipelineStarted",
+                "StepSkipped(a, 0)",
+                "StepStarted(b, 1)",
+                "StepCompleted(b, 1)",
+                "StepSkipped(c, 2)",
+                "PipelineCompleted(executed=[b], skipped=[a, c])");
+    }
+
+    @Test
+    void activationIsNotConsultedForRequiredSteps() {
+        List<String> calls = new ArrayList<>();
+        Pipeline<TestContext> pipeline = Pipeline.<TestContext>builder("p")
+                .step("a", tracing("a"))
+                .requiredStep("b", tracing("b"))
+                .activation((pipelineName, step) -> {
+                    calls.add(step);
+                    return true;
+                })
+                .build();
+
+        pipeline.run(new TestContext());
+
+        assertThat(calls).containsExactly("a");
+    }
+
+    @Test
     void disablingDisablesOnlyListedStepsOfListedPipeline() {
         StepActivation activation = StepActivation.disabling(Map.of("first", Set.of("b")));
 

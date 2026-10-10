@@ -49,6 +49,9 @@ Each entry has the form `<pipeline-name>.<step-name>`, with kebab-case names. Le
 whitespace is removed. A malformed entry always prevents startup with a
 `PipelineConfigurationException`, even with `fail-on-unknown-steps=false`.
 
+A step declared with `requiredStep` cannot be disabled: an entry that refers to it also always
+prevents startup.
+
 The list can also be set from an environment variable, which is handy for a quick rollback in
 containers:
 
@@ -71,11 +74,14 @@ class CreateProductPipelineConfig {
         return factory.<CreateProductContext>pipeline("create-product")
                 .step("name-unique", nameUnique)
                 .step("date-range", dateRange)
-                .step("save-product", save)
+                .requiredStep("save-product", save)
                 .build();
     }
 }
 ```
+
+`requiredStep` marks a step that the configuration must not be able to switch off: it is always
+executed, whatever `pipeline.disabled-steps` or a custom `StepActivation` says.
 
 ## Using it in a service
 
@@ -127,13 +133,17 @@ factory.<CreateProductContext>pipeline("create-product")
 Once all singletons have been created, `PipelineDefinitionsValidator` checks that:
 
 - no two `Pipeline` beans have the same name (always fatal: toggles would be ambiguous);
+- no entry of `pipeline.disabled-steps` refers to a required step (always fatal: the step would
+  run anyway, while the configuration says it is disabled);
 - every entry of `pipeline.disabled-steps` refers to an existing pipeline and step.
 
 All problems are collected and reported in a single `PipelineConfigurationException`, one per line.
 
 **Limitation: only pipelines registered as beans are validated.** A pipeline built inside a
 constructor or a method is not visible to the validator, and its toggles would be reported as
-"unknown". The recommendation is to always declare pipelines as beans.
+"unknown". The recommendation is to always declare pipelines as beans. Required steps of such a
+pipeline are still always executed, because that is enforced by `Pipeline` itself, but an entry
+that tries to disable them is not reported at startup.
 
 ## HTTP error handling
 

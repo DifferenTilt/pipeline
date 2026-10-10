@@ -11,6 +11,9 @@ import java.util.Set;
  * <p>{@link #isEnabled(String, String)} is called on every execution for every step, not when
  * the pipeline is built: an implementation can therefore change its answer at runtime.
  * Implementations must be thread-safe if the pipeline is run by several threads.
+ *
+ * <p>The activation is not consulted for required steps (see
+ * {@code Pipeline.Builder.requiredStep}): those are always executed.
  */
 @FunctionalInterface
 public interface StepActivation {

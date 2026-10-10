@@ -41,6 +41,7 @@ public final class Pipeline<C> {
     private final String name;
     private final List<NamedStep<C>> steps;
     private final List<String> stepNames;
+    private final List<String> requiredStepNames;
     private final StepActivation activation;
     private final ListenerChain<C> listeners;
     private final Clock clock;
@@ -50,6 +51,7 @@ public final class Pipeline<C> {
         this.name = builder.name;
         this.steps = List.copyOf(builder.steps);
         this.stepNames = this.steps.stream().map(NamedStep::name).toList();
+        this.requiredStepNames = this.steps.stream().filter(NamedStep::required).map(NamedStep::name).toList();
         this.activation = builder.activation;
         this.listeners = new ListenerChain<>(builder.listeners, builder.listenerErrorPolicy);
         this.clock = builder.clock;
@@ -88,8 +90,19 @@ public final class Pipeline<C> {
     }
 
     /**
+     * The names of the required steps, in execution order. A required step is always executed:
+     * the {@link StepActivation} cannot disable it.
+     *
+     * @return an unmodifiable list of the required step names
+     * @see Builder#requiredStep(String, Step)
+     */
+    public List<String> requiredStepNames() {
+        return requiredStepNames;
+    }
+
+    /**
      * Runs the pipeline: evaluates the activation of each step, in order, and executes the
-     * enabled ones.
+     * enabled ones. Required steps are always executed, without consulting the activation.
      *
      * @param context the execution context; not null
      * @return the same context instance that was passed in
@@ -113,7 +126,7 @@ public final class Pipeline<C> {
 
             boolean enabled;
             try {
-                enabled = activation.isEnabled(name, stepName);
+                enabled = step.required() || activation.isEnabled(name, stepName);
             } catch (RuntimeException e) {
                 throw fail(runId, context, stepName, i, Duration.ZERO, pipelineStart, e);
             }
@@ -172,7 +185,7 @@ public final class Pipeline<C> {
         return value;
     }
 
-    private record NamedStep<C>(String name, Step<C> step) {
+    private record NamedStep<C>(String name, Step<C> step, boolean required) {
     }
 
     /**
@@ -196,7 +209,7 @@ public final class Pipeline<C> {
         }
 
         /**
-         * Appends a step to the pipeline.
+         * Appends a step to the pipeline. The step can be disabled by the {@link StepActivation}.
          *
          * @param name the step name, in kebab-case and unique within the pipeline
          * @param step the step logic; not null
@@ -205,13 +218,33 @@ public final class Pipeline<C> {
          * @throws IllegalArgumentException if {@code name} is not kebab-case or is already used
          */
         public Builder<C> step(String name, Step<C> step) {
+            return addStep(name, step, false);
+        }
+
+        /**
+         * Appends a required step to the pipeline. A required step is always executed: the
+         * {@link StepActivation} is not consulted for it, so it can never be disabled. Use it
+         * for the steps the pipeline cannot do without, such as the one that persists the data
+         * or produces the result read by the caller.
+         *
+         * @param name the step name, in kebab-case and unique within the pipeline
+         * @param step the step logic; not null
+         * @return this builder
+         * @throws NullPointerException     if {@code name} or {@code step} is null
+         * @throws IllegalArgumentException if {@code name} is not kebab-case or is already used
+         */
+        public Builder<C> requiredStep(String name, Step<C> step) {
+            return addStep(name, step, true);
+        }
+
+        private Builder<C> addStep(String name, Step<C> step, boolean required) {
             requireKebabCase(name, "step name");
             Objects.requireNonNull(step, "step must not be null");
             if (steps.stream().anyMatch(existing -> existing.name().equals(name))) {
                 throw new IllegalArgumentException(
                         "duplicate step name '" + name + "' in pipeline '" + this.name + "'");
             }
-            steps.add(new NamedStep<>(name, step));
+            steps.add(new NamedStep<>(name, step, required));
             return this;
         }
 

@@ -57,6 +57,21 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md` e
 - **Logger di `ListenerChain`.** Usa il logger `com.dtilt.pipeline`, lo stesso di
   `LoggingPipelineListener`.
 
+## Step obbligatori
+
+- **Metodo sul builder, non annotazione.** Uno step obbligatorio si dichiara con
+  `Pipeline.Builder.requiredStep(name, step)`. Un'annotazione sulla classe dello step è stata
+  scartata: `Step` è una `@FunctionalInterface` e lambda e method reference non si possono
+  annotare; "obbligatorio" è una proprietà del ruolo dello step in una pipeline, non della classe
+  (la stessa classe può essere obbligatoria in una pipeline e opzionale in un'altra); servirebbe
+  reflection nel core e non reggerebbe con step proxati.
+- **Default invariato.** `step(...)` continua a creare step disabilitabili: essere obbligatorio è
+  opt-in dell'autore della pipeline.
+- **Activation non consultata.** Per uno step obbligatorio `StepActivation.isEnabled` non viene
+  chiamata: la garanzia vale per qualsiasi activation e lo step non emette mai `StepSkipped`.
+- **`requiredStepNames()`** espone i nomi degli step obbligatori, in ordine di esecuzione, per chi
+  deve validare la configurazione (lo starter).
+
 ## `PipelineFactory`
 
 - Non espone `runIdSupplier` (non previsto dalla firma in §4.4): ogni pipeline usa il default o
@@ -107,8 +122,12 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md` e
 
 - **Step di pipeline con nome duplicato.** Una voce è considerata nota se lo step esiste in almeno
   una delle pipeline con quel nome; il nome duplicato è comunque segnalato come errore.
+- **Voce di `disabled-steps` su uno step obbligatorio.** Sempre fatale, anche con
+  `fail-on-unknown-steps=false`: ignorarla farebbe credere a chi configura di aver disabilitato
+  uno step che invece viene eseguito. Con nomi di pipeline duplicati basta che lo step sia
+  obbligatorio in una delle pipeline con quel nome.
 - **Messaggio.** Prima riga `Invalid pipeline configuration:`, poi un problema per riga (prima i
-  duplicati, poi le voci sconosciute).
+  duplicati, poi le voci su step obbligatori, poi le voci sconosciute).
 - **`getBeansOfType(Pipeline.class)`** inizializza anche eventuali bean `Pipeline` lazy, come
   conseguenza dell'API indicata dalla specifica.
 

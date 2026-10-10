@@ -67,6 +67,45 @@ class PipelineBuilderTest {
     }
 
     @Test
+    void requiredStepAppliesTheSameValidationAsStep() {
+        Pipeline.Builder<TestContext> builder = Pipeline.<TestContext>builder("p").step("a", tracing("a"));
+
+        assertThatThrownBy(() -> builder.requiredStep(null, tracing("x")))
+                .isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> builder.requiredStep("b", null))
+                .isInstanceOf(NullPointerException.class).hasMessageContaining("step");
+        assertThatThrownBy(() -> builder.requiredStep("Not-Kebab", tracing("x")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("step name");
+        assertThatThrownBy(() -> builder.requiredStep("a", tracing("other")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("duplicate")
+                .hasMessageContaining("'a'");
+    }
+
+    @Test
+    void requiredStepNamesListOnlyRequiredStepsInOrderAndAreUnmodifiable() {
+        Pipeline<TestContext> pipeline = Pipeline.<TestContext>builder("p")
+                .requiredStep("c", tracing("c"))
+                .step("a", tracing("a"))
+                .requiredStep("b", tracing("b"))
+                .build();
+
+        List<String> required = pipeline.requiredStepNames();
+
+        assertThat(pipeline.stepNames()).containsExactly("c", "a", "b");
+        assertThat(required).containsExactly("c", "b");
+        assertThatThrownBy(() -> required.add("a")).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void requiredStepNamesAreEmptyWhenNoStepIsRequired() {
+        Pipeline<TestContext> pipeline = Pipeline.<TestContext>builder("p").step("a", tracing("a")).build();
+
+        assertThat(pipeline.requiredStepNames()).isEmpty();
+    }
+
+    @Test
     void rejectsNullArguments() {
         Pipeline.Builder<TestContext> builder = Pipeline.builder("p");
 

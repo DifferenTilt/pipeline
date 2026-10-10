@@ -2,7 +2,7 @@ package com.dtilt.pipeline.spring;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.springframework.boot.test.context.assertj.AssertableApplicationContext;
+import org.springframework.boot.test.context.assertj.ApplicationContextAssertProvider;
 
 /** Support for tests that check that the context failed to start. */
 final class StartupFailures {
@@ -11,7 +11,7 @@ final class StartupFailures {
     }
 
     /** Checks that startup failed and returns the innermost cause of the failure. */
-    static Throwable rootCause(AssertableApplicationContext context) {
+    static Throwable rootCause(ApplicationContextAssertProvider<?> context) {
         assertThat(context).hasFailed();
         Throwable cause = context.getStartupFailure();
         while (cause.getCause() != null) {

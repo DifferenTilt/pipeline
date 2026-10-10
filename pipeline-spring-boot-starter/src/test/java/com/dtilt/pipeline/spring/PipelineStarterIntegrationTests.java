@@ -63,6 +63,15 @@ class PipelineStarterIntegrationTests {
         });
     }
 
+    @Test
+    void disablingARequiredStepPreventsStartup() {
+        contextRunner.withPropertyValues("pipeline.disabled-steps=create-product.save-product")
+                .run(context -> assertThat(StartupFailures.rootCause(context))
+                        .isInstanceOf(PipelineConfigurationException.class)
+                        .hasMessageContaining(
+                                "step 'save-product' is required in pipeline 'create-product' and cannot be disabled"));
+    }
+
     /** Names of the executed steps, in execution order. */
     static class ExecutedSteps {
         final List<String> names = new CopyOnWriteArrayList<>();
@@ -108,7 +117,7 @@ class PipelineStarterIntegrationTests {
                         context.name = context.name.strip();
                     })
                     .step("date-range", context -> executed.names.add("date-range"))
-                    .step("save-product", context -> {
+                    .requiredStep("save-product", context -> {
                         executed.names.add("save-product");
                         throw new BusinessRuleException("PRODUCT_NAME_DUPLICATE", Category.CONFLICT,
                                 "A product named '" + context.name + "' already exists",

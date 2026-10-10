@@ -18,6 +18,8 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
  *
  * <ul>
  *   <li>two {@link Pipeline} beans cannot have the same name (always fatal);</li>
+ *   <li>no entry of {@code pipeline.disabled-steps} can refer to a required step, declared with
+ *       {@code Pipeline.Builder.requiredStep} (always fatal);</li>
  *   <li>every entry of {@code pipeline.disabled-steps} must refer to an existing pipeline and
  *       step (fatal if {@code pipeline.fail-on-unknown-steps=true}, otherwise a WARN).</li>
  * </ul>
@@ -47,9 +49,10 @@ public class PipelineDefinitionsValidator implements SmartInitializingSingleton 
      * Runs the validation, collecting all problems before reporting them.
      *
      * @throws PipelineConfigurationException if an entry of {@code disabled-steps} is malformed,
-     *                                        if there are duplicate pipeline names, or if there
-     *                                        are unknown entries and
-     *                                        {@code fail-on-unknown-steps} is {@code true}
+     *                                        if there are duplicate pipeline names, if an entry
+     *                                        refers to a required step, or if there are unknown
+     *                                        entries and {@code fail-on-unknown-steps} is
+     *                                        {@code true}
      */
     @Override
     public void afterSingletonsInstantiated() {
@@ -68,6 +71,7 @@ public class PipelineDefinitionsValidator implements SmartInitializingSingleton 
             }
         });
 
+        List<String> required = new ArrayList<>();
         List<String> unknown = new ArrayList<>();
         disabledSteps.forEach((pipelineName, steps) -> {
             List<Pipeline<?>> pipelines = pipelinesByName.get(pipelineName);
@@ -77,13 +81,18 @@ public class PipelineDefinitionsValidator implements SmartInitializingSingleton 
                     unknown.add(entry + "pipeline '" + pipelineName + "' does not exist");
                 } else if (pipelines.stream().noneMatch(pipeline -> pipeline.stepNames().contains(step))) {
                     unknown.add(entry + "step '" + step + "' does not exist in pipeline '" + pipelineName + "'");
+                } else if (pipelines.stream().anyMatch(pipeline -> pipeline.requiredStepNames().contains(step))) {
+                    required.add(entry + "step '" + step + "' is required in pipeline '" + pipelineName
+                            + "' and cannot be disabled");
                 }
             }
         });
 
-        if (!duplicates.isEmpty() || (!unknown.isEmpty() && properties.isFailOnUnknownSteps())) {
+        if (!duplicates.isEmpty() || !required.isEmpty()
+                || (!unknown.isEmpty() && properties.isFailOnUnknownSteps())) {
             StringBuilder message = new StringBuilder("Invalid pipeline configuration:");
             duplicates.forEach(problem -> message.append(System.lineSeparator()).append(" - ").append(problem));
+            required.forEach(problem -> message.append(System.lineSeparator()).append(" - ").append(problem));
             unknown.forEach(problem -> message.append(System.lineSeparator()).append(" - ").append(problem));
             throw new PipelineConfigurationException(message.toString());
         }
