@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
-import java.util.regex.Pattern;
 
 /**
  * An ordered, immutable sequence of named {@link Step}s, executed with {@link #run(Object)}.
@@ -35,8 +34,6 @@ import java.util.regex.Pattern;
  * @param <C> the context type
  */
 public final class Pipeline<C> {
-
-    private static final Pattern KEBAB_CASE = Pattern.compile("^[a-z0-9]+(-[a-z0-9]+)*$");
 
     private final String name;
     private final List<NamedStep<C>> steps;
@@ -68,7 +65,7 @@ public final class Pipeline<C> {
      * @throws IllegalArgumentException if {@code name} is not kebab-case
      */
     public static <C> Builder<C> builder(String name) {
-        return new Builder<>(requireKebabCase(name, "pipeline name"));
+        return new Builder<>(Names.requireKebabCase(name, "pipeline name"));
     }
 
     /**
@@ -115,53 +112,7 @@ public final class Pipeline<C> {
     public C run(C context) {
         Objects.requireNonNull(context, "context must not be null");
         String runId = Objects.requireNonNull(runIdSupplier.get(), "runIdSupplier returned null");
-        long pipelineStart = System.nanoTime();
-        listeners.emit(new PipelineStarted<>(name, runId, clock.instant(), context));
-
-        List<String> executedSteps = new ArrayList<>();
-        List<String> skippedSteps = new ArrayList<>();
-        for (int i = 0; i < steps.size(); i++) {
-            NamedStep<C> step = steps.get(i);
-            String stepName = step.name();
-
-            boolean enabled;
-            try {
-                enabled = step.required() || activation.isEnabled(name, stepName);
-            } catch (RuntimeException e) {
-                throw fail(runId, context, stepName, i, Duration.ZERO, pipelineStart, e);
-            }
-            if (!enabled) {
-                listeners.emit(new StepSkipped<>(name, runId, clock.instant(), context, stepName, i));
-                skippedSteps.add(stepName);
-                continue;
-            }
-
-            listeners.emit(new StepStarted<>(name, runId, clock.instant(), context, stepName, i));
-            long stepStart = System.nanoTime();
-            try {
-                step.step().execute(context);
-            } catch (RuntimeException e) {
-                throw fail(runId, context, stepName, i, elapsedSince(stepStart), pipelineStart, e);
-            }
-            listeners.emit(new StepCompleted<>(name, runId, clock.instant(), context, stepName, i,
-                    elapsedSince(stepStart)));
-            executedSteps.add(stepName);
-        }
-
-        listeners.emit(new PipelineCompleted<>(name, runId, clock.instant(), context,
-                elapsedSince(pipelineStart), executedSteps, skippedSteps));
-        return context;
-    }
-
-    /** Translates the exception, emits StepFailed and PipelineFailed, and returns the exception to throw. */
-    private PipelineException fail(String runId, C context, String stepName, int stepIndex,
-                                   Duration stepDuration, long pipelineStart, RuntimeException e) {
-        PipelineException error = translate(stepName, e);
-        listeners.emit(new StepFailed<>(name, runId, clock.instant(), context, stepName, stepIndex,
-                stepDuration, error));
-        listeners.emit(new PipelineFailed<>(name, runId, clock.instant(), context,
-                elapsedSince(pipelineStart), stepName, error));
-        return error;
+        return new Execution(runId, context).run();
     }
 
     private PipelineException translate(String stepName, RuntimeException e) {
@@ -176,16 +127,73 @@ public final class Pipeline<C> {
         return Duration.ofNanos(Math.max(0L, System.nanoTime() - startNanos));
     }
 
-    private static String requireKebabCase(String value, String what) {
-        Objects.requireNonNull(value, what + " must not be null");
-        if (!KEBAB_CASE.matcher(value).matches()) {
-            throw new IllegalArgumentException(
-                    what + " must be kebab-case (" + KEBAB_CASE.pattern() + "): '" + value + "'");
-        }
-        return value;
+    private record NamedStep<C>(String name, Step<C> step, boolean required) {
     }
 
-    private record NamedStep<C>(String name, Step<C> step, boolean required) {
+    /** A single execution of the pipeline: holds the state of the run and emits its events. */
+    private final class Execution {
+
+        private final String runId;
+        private final C context;
+        private final long startNanos;
+        private final List<String> executedSteps = new ArrayList<>();
+        private final List<String> skippedSteps = new ArrayList<>();
+
+        private Execution(String runId, C context) {
+            this.runId = runId;
+            this.context = context;
+            this.startNanos = System.nanoTime();
+        }
+
+        private C run() {
+            listeners.emit(new PipelineStarted<>(name, runId, clock.instant(), context));
+            for (int i = 0; i < steps.size(); i++) {
+                runStep(steps.get(i), i);
+            }
+            listeners.emit(new PipelineCompleted<>(name, runId, clock.instant(), context,
+                    elapsedSince(startNanos), executedSteps, skippedSteps));
+            return context;
+        }
+
+        private void runStep(NamedStep<C> step, int index) {
+            if (isEnabled(step, index)) {
+                execute(step, index);
+                executedSteps.add(step.name());
+            } else {
+                listeners.emit(new StepSkipped<>(name, runId, clock.instant(), context, step.name(), index));
+                skippedSteps.add(step.name());
+            }
+        }
+
+        private boolean isEnabled(NamedStep<C> step, int index) {
+            try {
+                return step.required() || activation.isEnabled(name, step.name());
+            } catch (RuntimeException e) {
+                throw fail(step, index, Duration.ZERO, e);
+            }
+        }
+
+        private void execute(NamedStep<C> step, int index) {
+            listeners.emit(new StepStarted<>(name, runId, clock.instant(), context, step.name(), index));
+            long stepStart = System.nanoTime();
+            try {
+                step.step().execute(context);
+            } catch (RuntimeException e) {
+                throw fail(step, index, elapsedSince(stepStart), e);
+            }
+            listeners.emit(new StepCompleted<>(name, runId, clock.instant(), context, step.name(), index,
+                    elapsedSince(stepStart)));
+        }
+
+        /** Translates the exception, emits StepFailed and PipelineFailed, and returns the exception to throw. */
+        private PipelineException fail(NamedStep<C> step, int index, Duration stepDuration, RuntimeException e) {
+            PipelineException error = translate(step.name(), e);
+            listeners.emit(new StepFailed<>(name, runId, clock.instant(), context, step.name(), index,
+                    stepDuration, error));
+            listeners.emit(new PipelineFailed<>(name, runId, clock.instant(), context,
+                    elapsedSince(startNanos), step.name(), error));
+            return error;
+        }
     }
 
     /**
@@ -238,7 +246,7 @@ public final class Pipeline<C> {
         }
 
         private Builder<C> addStep(String name, Step<C> step, boolean required) {
-            requireKebabCase(name, "step name");
+            Names.requireKebabCase(name, "step name");
             Objects.requireNonNull(step, "step must not be null");
             if (steps.stream().anyMatch(existing -> existing.name().equals(name))) {
                 throw new IllegalArgumentException(
