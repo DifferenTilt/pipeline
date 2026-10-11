@@ -115,14 +115,6 @@ public final class Pipeline<C> {
         return new Execution(runId, context).run();
     }
 
-    private PipelineException translate(String stepName, RuntimeException e) {
-        if (e instanceof PipelineException pipelineException) {
-            pipelineException.locate(name, stepName);
-            return pipelineException;
-        }
-        return new StepExecutionException(name, stepName, e);
-    }
-
     private static Duration elapsedSince(long startNanos) {
         return Duration.ofNanos(Math.max(0L, System.nanoTime() - startNanos));
     }
@@ -193,6 +185,14 @@ public final class Pipeline<C> {
             listeners.emit(new PipelineFailed<>(name, runId, clock.instant(), context,
                     elapsedSince(startNanos), step.name(), error));
             return error;
+        }
+
+        private PipelineException translate(String stepName, RuntimeException e) {
+            if (e instanceof PipelineException pipelineException) {
+                pipelineException.locate(name, stepName);
+                return pipelineException;
+            }
+            return new StepExecutionException(name, stepName, e);
         }
     }
 
