@@ -33,6 +33,9 @@ public class LoggingPipelineListener implements PipelineListener<Object> {
 
     /** The name of the logger used by this listener. */
     public static final String LOGGER_NAME = "com.dtilt.pipeline";
+    public static final String STEP = "Step '";
+    public static final String OF_PIPELINE = "' of pipeline '";
+    public static final String PIPELINE = "Pipeline '";
 
     private final Logger logger;
 
@@ -48,34 +51,34 @@ public class LoggingPipelineListener implements PipelineListener<Object> {
     /** {@inheritDoc} */
     @Override
     public void onPipelineStarted(PipelineStarted<?> event) {
-        logger.log(Level.DEBUG, () -> "Pipeline '" + event.pipeline() + "' started" + runId(event));
+        logger.log(Level.DEBUG, () -> PIPELINE + event.pipeline() + "' started" + runId(event));
     }
 
     /** {@inheritDoc} */
     @Override
     public void onStepStarted(StepStarted<?> event) {
-        logger.log(Level.DEBUG, () -> "Step '" + event.step() + "' of pipeline '" + event.pipeline()
+        logger.log(Level.DEBUG, () -> STEP + event.step() + OF_PIPELINE + event.pipeline()
                 + "' started" + runId(event));
     }
 
     /** {@inheritDoc} */
     @Override
     public void onStepCompleted(StepCompleted<?> event) {
-        logger.log(Level.DEBUG, () -> "Step '" + event.step() + "' of pipeline '" + event.pipeline()
+        logger.log(Level.DEBUG, () -> STEP + event.step() + OF_PIPELINE + event.pipeline()
                 + "' completed in " + format(event.duration()) + runId(event));
     }
 
     /** {@inheritDoc} */
     @Override
     public void onStepSkipped(StepSkipped<?> event) {
-        logger.log(Level.DEBUG, () -> "Step '" + event.step() + "' of pipeline '" + event.pipeline()
+        logger.log(Level.DEBUG, () -> STEP + event.step() + OF_PIPELINE + event.pipeline()
                 + "' skipped" + runId(event));
     }
 
     /** {@inheritDoc} */
     @Override
     public void onPipelineCompleted(PipelineCompleted<?> event) {
-        logger.log(Level.INFO, () -> "Pipeline '" + event.pipeline() + "' completed in "
+        logger.log(Level.INFO, () -> PIPELINE + event.pipeline() + "' completed in "
                 + format(event.duration()) + ": " + event.executedSteps().size() + " step(s) executed, "
                 + event.skippedSteps().size() + " skipped" + runId(event));
     }
@@ -85,10 +88,10 @@ public class LoggingPipelineListener implements PipelineListener<Object> {
     public void onPipelineFailed(PipelineFailed<?> event) {
         PipelineException error = event.error();
         if (error instanceof BusinessRuleException businessError) {
-            logger.log(Level.INFO, () -> "Pipeline '" + event.pipeline() + "' rejected at step '"
+            logger.log(Level.INFO, () -> PIPELINE + event.pipeline() + "' rejected at step '"
                     + event.failedStep() + "' with code " + businessError.getCode() + runId(event));
         } else {
-            logger.log(Level.WARNING, () -> "Pipeline '" + event.pipeline() + "' failed at step '"
+            logger.log(Level.WARNING, () -> PIPELINE + event.pipeline() + "' failed at step '"
                     + event.failedStep() + "': " + error.getMessage() + runId(event));
         }
     }
