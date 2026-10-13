@@ -30,8 +30,11 @@ public class BusinessRuleException extends PipelineException {
         FORBIDDEN
     }
 
+    /** The stable, machine-readable error code. */
     private final String code;
+    /** The error category. */
     private final Category category;
+    /** The additional details, as an unmodifiable copy of the ones supplied by the caller. */
     // The map is serializable; its values are only if the ones supplied by the caller are.
     @SuppressWarnings("serial")
     private final Map<String, Object> details;

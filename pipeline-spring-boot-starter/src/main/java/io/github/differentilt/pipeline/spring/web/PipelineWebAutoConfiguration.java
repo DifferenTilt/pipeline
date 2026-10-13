@@ -22,6 +22,10 @@ import org.springframework.http.ProblemDetail;
 @EnableConfigurationProperties(PipelineWebProperties.class)
 public class PipelineWebAutoConfiguration {
 
+    /** Creates the auto-configuration. */
+    public PipelineWebAutoConfiguration() {
+    }
+
     @Bean
     @ConditionalOnMissingBean(PipelineExceptionHandler.class)
     PipelineExceptionHandler pipelineExceptionHandler(PipelineWebProperties properties) {

@@ -26,6 +26,10 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(PipelineProperties.class)
 public class PipelineAutoConfiguration {
 
+    /** Creates the auto-configuration. */
+    public PipelineAutoConfiguration() {
+    }
+
     @Bean
     @ConditionalOnMissingBean
     StepActivation pipelineStepActivation(PipelineProperties properties) {

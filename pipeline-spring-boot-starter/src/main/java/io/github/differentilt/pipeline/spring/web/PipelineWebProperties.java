@@ -22,6 +22,10 @@ public class PipelineWebProperties {
 
     private final ExceptionHandler exceptionHandler = new ExceptionHandler();
 
+    /** Creates the properties with their default values. */
+    public PipelineWebProperties() {
+    }
+
     /**
      * Tells whether business error responses include {@code pipeline} and {@code step}.
      *
@@ -76,6 +80,10 @@ public class PipelineWebProperties {
          * Enables the default HTTP handler for pipeline exceptions.
          */
         private boolean enabled = true;
+
+        /** Creates the properties with their default values. */
+        public ExceptionHandler() {
+        }
 
         /**
          * Tells whether the default HTTP handler is enabled.

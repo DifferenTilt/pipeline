@@ -28,6 +28,10 @@ public class PipelineProperties {
 
     private final Logging logging = new Logging();
 
+    /** Creates the properties with their default values. */
+    public PipelineProperties() {
+    }
+
     /**
      * The disabled steps, in the form {@code <pipeline>.<step>}.
      *
@@ -99,6 +103,10 @@ public class PipelineProperties {
          * Registers LoggingPipelineListener as a global listener.
          */
         private boolean enabled = false;
+
+        /** Creates the properties with their default values. */
+        public Logging() {
+        }
 
         /**
          * Tells whether {@code LoggingPipelineListener} is registered as a global listener.

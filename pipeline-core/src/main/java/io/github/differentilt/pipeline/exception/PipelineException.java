@@ -13,7 +13,9 @@ public abstract class PipelineException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
+    /** The name of the pipeline in which the error occurred, or null if not located yet. */
     private String pipeline;
+    /** The name of the step in which the error occurred, or null if not located yet. */
     private String step;
 
     /**
