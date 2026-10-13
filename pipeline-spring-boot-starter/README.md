@@ -17,7 +17,7 @@ property.
 
 ```xml
 <dependency>
-    <groupId>com.dtilt.pipeline</groupId>
+    <groupId>io.github.differentilt</groupId>
     <artifactId>pipeline-spring-boot-starter</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>

@@ -7,15 +7,17 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md` e
 
 ## Progetto
 
-- **groupId `com.dtilt.pipeline`.** Scelto al posto del segnaposto `com.example` della specifica
-  originale, per coerenza con il package base `com.dtilt.pipeline`. Le coordinate del modulo sono
-  `com.dtilt.pipeline:pipeline-core`.
-- **Layout dei package.** Su richiesta dell'utente il core è suddiviso in `com.dtilt.pipeline`
-  (`Pipeline`, `PipelineFactory`, `ListenerChain`), `com.dtilt.pipeline.step` (`Step`,
-  `StepActivation`), `com.dtilt.pipeline.exception` (le tre eccezioni), `com.dtilt.pipeline.event`
-  (`PipelineEvent` e i record) e `com.dtilt.pipeline.listener` (`PipelineListener`,
-  `ListenerErrorPolicy`, `LoggingPipelineListener`), invece dei due soli package della specifica
-  originale.
+- **groupId `io.github.differentilt`.** È il namespace che Maven Central verifica a partire
+  dall'account GitHub `DifferenTilt`, senza bisogno di possedere un dominio; sostituisce il
+  precedente `com.dtilt.pipeline`. Il package base è `io.github.differentilt.pipeline` e le
+  coordinate del modulo sono `io.github.differentilt:pipeline-core`.
+- **Layout dei package.** Su richiesta dell'utente il core è suddiviso in
+  `io.github.differentilt.pipeline` (`Pipeline`, `PipelineFactory`, `ListenerChain`),
+  `io.github.differentilt.pipeline.step` (`Step`, `StepActivation`),
+  `io.github.differentilt.pipeline.exception` (le tre eccezioni),
+  `io.github.differentilt.pipeline.event` (`PipelineEvent` e i record) e
+  `io.github.differentilt.pipeline.listener` (`PipelineListener`, `ListenerErrorPolicy`,
+  `LoggingPipelineListener`), invece dei due soli package della specifica originale.
 - **`PipelineException.locate` è `public final`.** Con le eccezioni in un package diverso da
   `Pipeline` non può più essere package-private. Resta innocuo: assegna la posizione solo se non
   è già assegnata.
@@ -54,7 +56,7 @@ Decisioni prese su punti ambigui di `pipeline-core-spec.md` e
   fallimento di uno step: né tradotta né seguita da `StepFailed`/`PipelineFailed`. Se però la
   pipeline è annidata, la pipeline esterna la vede come una normale eccezione del proprio step e
   la incapsula in `StepExecutionException`.
-- **Logger di `ListenerChain`.** Usa il logger `com.dtilt.pipeline`, lo stesso di
+- **Logger di `ListenerChain`.** Usa il logger `io.github.differentilt.pipeline`, lo stesso di
   `LoggingPipelineListener`.
 
 ## Step obbligatori

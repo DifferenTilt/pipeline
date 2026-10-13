@@ -1,2 +1,2 @@
-com.dtilt.pipeline.spring.PipelineAutoConfiguration
-com.dtilt.pipeline.spring.web.PipelineWebAutoConfiguration
+io.github.differentilt.pipeline.spring.PipelineAutoConfiguration
+io.github.differentilt.pipeline.spring.web.PipelineWebAutoConfiguration

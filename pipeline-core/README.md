@@ -21,11 +21,11 @@ Pipeline and step names are kebab-case (`^[a-z0-9]+(-[a-z0-9]+)*$`).
 
 | Package | Contents |
 |---|---|
-| `com.dtilt.pipeline` | `Pipeline`, `PipelineFactory` |
-| `com.dtilt.pipeline.step` | `Step`, `StepActivation` |
-| `com.dtilt.pipeline.exception` | `PipelineException`, `BusinessRuleException`, `StepExecutionException` |
-| `com.dtilt.pipeline.event` | `PipelineEvent` and the event records (`PipelineStarted`, `StepCompleted`, ...) |
-| `com.dtilt.pipeline.listener` | `PipelineListener`, `ListenerErrorPolicy`, `LoggingPipelineListener` |
+| `io.github.differentilt.pipeline` | `Pipeline`, `PipelineFactory` |
+| `io.github.differentilt.pipeline.step` | `Step`, `StepActivation` |
+| `io.github.differentilt.pipeline.exception` | `PipelineException`, `BusinessRuleException`, `StepExecutionException` |
+| `io.github.differentilt.pipeline.event` | `PipelineEvent` and the event records (`PipelineStarted`, `StepCompleted`, ...) |
+| `io.github.differentilt.pipeline.listener` | `PipelineListener`, `ListenerErrorPolicy`, `LoggingPipelineListener` |
 
 ## Usage example
 
@@ -109,7 +109,7 @@ With `ListenerErrorPolicy.LOG_AND_CONTINUE` (the default) a listener that throws
 the caller (useful in tests).
 
 `LoggingPipelineListener` is an optional listener based on `System.Logger` (logger name
-`com.dtilt.pipeline`); it is not registered automatically.
+`io.github.differentilt.pipeline`); it is not registered automatically.
 
 ## Build
 

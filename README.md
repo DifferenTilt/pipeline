@@ -39,14 +39,14 @@ Then add the module you need to your project:
 ```xml
 <!-- plain Java -->
 <dependency>
-    <groupId>com.dtilt.pipeline</groupId>
+    <groupId>io.github.differentilt</groupId>
     <artifactId>pipeline-core</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
 
 <!-- Spring Boot (brings pipeline-core with it) -->
 <dependency>
-    <groupId>com.dtilt.pipeline</groupId>
+    <groupId>io.github.differentilt</groupId>
     <artifactId>pipeline-spring-boot-starter</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 </dependency>
