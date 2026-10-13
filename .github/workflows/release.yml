@@ -1,0 +1,170 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      type:
+        description: Kind of release
+        type: choice
+        required: true
+        options:
+          - minor
+          - major
+          - hotfix
+      dry_run:
+        description: Dry run (builds the release, pushes and publishes nothing)
+        type: boolean
+        default: false
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  VERSIONS_PLUGIN: org.codehaus.mojo:versions-maven-plugin:2.23.0
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      TYPE: ${{ inputs.type }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      SOURCE: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      # minor and major releases are cut from develop, a hotfix from the branch the workflow is
+      # run on. Either way the branch must contain main, so that the final merge cannot conflict.
+      - name: Check the source branch
+        run: |
+          if [[ "$GITHUB_REF_TYPE" != branch ]]; then
+            echo "::error::Run the workflow on a branch, not on a tag."
+            exit 1
+          fi
+          if [[ "$TYPE" == hotfix ]]; then
+            if [[ "$SOURCE" == develop || "$SOURCE" == main ]]; then
+              echo "::error::A hotfix is released from its own branch, not from $SOURCE."
+              exit 1
+            fi
+          elif [[ "$SOURCE" != develop ]]; then
+            echo "::error::A $TYPE release is cut from develop, not from $SOURCE."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor origin/main HEAD; then
+            echo "::error::$SOURCE does not contain main: merge main into it first."
+            exit 1
+          fi
+
+      - name: Compute the version
+        id: version
+        run: |
+          last=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)
+          last=${last#v}
+          last=${last:-0.0.0}
+          version=$(.github/scripts/next-version.sh "$TYPE" "$last")
+          next=$(.github/scripts/next-version.sh hotfix "$version")-SNAPSHOT
+          if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
+            echo "::error::Tag v$version already exists."
+            exit 1
+          fi
+          if git ls-remote --exit-code --heads origin "release/$version" > /dev/null; then
+            echo "::error::Branch release/$version already exists."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "next=$next" >> "$GITHUB_OUTPUT"
+          echo "Releasing **$version** ($TYPE, after $last) from \`$SOURCE\`." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create the release branch
+        id: branch
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "release/$VERSION"
+          mvn -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          git commit -am "[release] Release $VERSION"
+          if [[ "$DRY_RUN" != true ]]; then
+            git push origin "release/$VERSION"
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build without publishing
+        if: inputs.dry_run
+        run: mvn -B -ntp -Prelease -Dgpg.skip verify
+
+      - name: Publish to Maven Central
+        id: publish
+        if: ${{ !inputs.dry_run }}
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: mvn -B -ntp -Prelease deploy -Dcentral.autoPublish=true -Dcentral.waitUntil=published
+
+      - name: Merge into main and tag
+        if: ${{ !inputs.dry_run }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git switch main
+          git merge --no-ff "release/$VERSION" -m "[release] Merge release $VERSION"
+          git tag -a "v$VERSION" -m "Release $VERSION"
+          git push --atomic origin main "v$VERSION"
+          git push origin --delete "release/$VERSION"
+
+      # After a hotfix develop has moved on from main and both changed the version: develop takes
+      # the released one first, so that the merge only conflicts on real changes.
+      - name: Start the next snapshot on develop
+        if: ${{ !inputs.dry_run }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          NEXT: ${{ steps.version.outputs.next }}
+        run: |
+          git switch develop
+          if ! git merge-base --is-ancestor develop main; then
+            mvn -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+            git commit -am "[release] Align develop with $VERSION"
+          fi
+          git merge main -m "[release] Merge main into develop after $VERSION"
+          mvn -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$NEXT" -DgenerateBackupPoms=false
+          git commit -am "[release] Start $NEXT"
+          git push origin develop
+          echo "Published, tagged \`v$VERSION\`; develop is now at $NEXT." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Delete the release branch after a failed publication
+        if: ${{ failure() && steps.branch.outputs.pushed == 'true' && steps.publish.outcome != 'success' }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: git push origin --delete "release/$VERSION"
+
+      - name: Report a release left half done
+        if: ${{ failure() && steps.publish.outcome == 'success' }}
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          NEXT: ${{ steps.version.outputs.next }}
+        run: |
+          {
+            echo "### $VERSION is on Maven Central, but the repository was not fully updated"
+            echo "Finish by hand whatever the failed step left out:"
+            echo "1. merge \`release/$VERSION\` into \`main\`, tag it \`v$VERSION\`, delete the branch;"
+            echo "2. merge \`main\` into \`develop\` and set its version to \`$NEXT\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error::$VERSION was published but the repository was not fully updated."
