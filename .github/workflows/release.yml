@@ -38,10 +38,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # The bytecode still targets Java 17 (maven.compiler.release). The build runs on 21 because
+      # the javadoc of 17 wrongly reports the compact constructors of records as undocumented.
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
           cache: maven
           server-id: central
           server-username: CENTRAL_USERNAME
