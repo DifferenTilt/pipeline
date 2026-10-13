@@ -19,7 +19,7 @@ property.
 <dependency>
     <groupId>io.github.differentilt</groupId>
     <artifactId>pipeline-spring-boot-starter</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 

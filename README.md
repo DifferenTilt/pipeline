@@ -28,27 +28,21 @@ Product product = createProduct.run(new CreateProductContext(request)).getSavedP
 
 ## Getting started
 
-The artifacts are not published to a public repository yet. Build and install them locally:
-
-```
-./mvnw install
-```
-
-Then add the module you need to your project:
+The artifacts are on Maven Central. Add the module you need to your project:
 
 ```xml
 <!-- plain Java -->
 <dependency>
     <groupId>io.github.differentilt</groupId>
     <artifactId>pipeline-core</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 
 <!-- Spring Boot (brings pipeline-core with it) -->
 <dependency>
     <groupId>io.github.differentilt</groupId>
     <artifactId>pipeline-spring-boot-starter</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
