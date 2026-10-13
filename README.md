@@ -31,7 +31,7 @@ Product product = createProduct.run(new CreateProductContext(request)).getSavedP
 The artifacts are not published to a public repository yet. Build and install them locally:
 
 ```
-mvn install
+./mvnw install
 ```
 
 Then add the module you need to your project:
@@ -56,10 +56,10 @@ See the module READMEs for usage and configuration.
 
 ## Building
 
-Requires JDK 17 or later and Maven 3.9.
+Requires JDK 17 or later. The Maven Wrapper downloads Maven 3.9 on first use.
 
 ```
-mvn verify
+./mvnw verify
 ```
 
 The build compiles with `-Xlint:all` and fails on compiler warnings.

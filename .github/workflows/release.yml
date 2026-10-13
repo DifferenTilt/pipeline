@@ -46,10 +46,10 @@ jobs:
           java-version: 21
           cache: maven
           server-id: central
-          server-username: CENTRAL_USERNAME
-          server-password: CENTRAL_PASSWORD
+          server-username-env-var: CENTRAL_USERNAME
+          server-password-env-var: CENTRAL_PASSWORD
           gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+          gpg-passphrase-env-var: MAVEN_GPG_PASSPHRASE
 
       # minor and major releases are cut from develop, a hotfix from the branch the workflow is
       # run on. Either way the branch must contain main, so that the final merge cannot conflict.
@@ -101,7 +101,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -c "release/$VERSION"
-          mvn -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+          ./mvnw -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
           git commit -am "[release] Release $VERSION"
           if [[ "$DRY_RUN" != true ]]; then
             git push origin "release/$VERSION"
@@ -110,8 +110,10 @@ jobs:
 
       - name: Build without publishing
         if: inputs.dry_run
-        run: mvn -B -ntp -Prelease -Dgpg.skip verify
+        run: ./mvnw -B -ntp -Prelease -Dgpg.skip verify
 
+      # Run with the wrapper's Maven 3.9: under the runner's Maven 3.10 the bundle also carries
+      # the maven-metadata-local.xml files, and Central rejects it.
       - name: Publish to Maven Central
         id: publish
         if: ${{ !inputs.dry_run }}
@@ -119,7 +121,7 @@ jobs:
           CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: mvn -B -ntp -Prelease deploy -Dcentral.autoPublish=true -Dcentral.waitUntil=published
+        run: ./mvnw -B -ntp -Prelease deploy -Dcentral.autoPublish=true -Dcentral.waitUntil=published
 
       - name: Merge into main and tag
         if: ${{ !inputs.dry_run }}
@@ -142,11 +144,11 @@ jobs:
         run: |
           git switch develop
           if ! git merge-base --is-ancestor develop main; then
-            mvn -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
+            ./mvnw -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
             git commit -am "[release] Align develop with $VERSION"
           fi
           git merge main -m "[release] Merge main into develop after $VERSION"
-          mvn -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$NEXT" -DgenerateBackupPoms=false
+          ./mvnw -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$NEXT" -DgenerateBackupPoms=false
           git commit -am "[release] Start $NEXT"
           git push origin develop
           echo "Published, tagged \`v$VERSION\`; develop is now at $NEXT." >> "$GITHUB_STEP_SUMMARY"
