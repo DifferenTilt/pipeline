@@ -33,9 +33,9 @@ public class LoggingPipelineListener implements PipelineListener<Object> {
 
     /** The name of the logger used by this listener. */
     public static final String LOGGER_NAME = "io.github.differentilt.pipeline";
-    public static final String STEP = "Step '";
-    public static final String OF_PIPELINE = "' of pipeline '";
-    public static final String PIPELINE = "Pipeline '";
+    private static final String STEP = "Step '";
+    private static final String OF_PIPELINE = "' of pipeline '";
+    private static final String PIPELINE = "Pipeline '";
 
     private final Logger logger;
 
