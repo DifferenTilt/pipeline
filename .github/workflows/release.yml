@@ -25,6 +25,7 @@ permissions:
 
 env:
   VERSIONS_PLUGIN: org.codehaus.mojo:versions-maven-plugin:2.23.0
+  HELP_PLUGIN: org.apache.maven.plugins:maven-help-plugin:3.5.1
 
 jobs:
   release:
@@ -70,6 +71,11 @@ jobs:
           fi
           if ! git merge-base --is-ancestor origin/main HEAD; then
             echo "::error::$SOURCE does not contain main: merge main into it first."
+            exit 1
+          fi
+          if [[ "$TYPE" == hotfix ]] \
+              && ! git merge-base --is-ancestor "$(git merge-base HEAD origin/develop)" origin/main; then
+            echo "::error::$SOURCE carries commits of develop: a hotfix branch starts from main."
             exit 1
           fi
 
@@ -135,7 +141,8 @@ jobs:
           git push origin --delete "release/$VERSION"
 
       # After a hotfix develop has moved on from main and both changed the version: develop takes
-      # the released one first, so that the merge only conflicts on real changes.
+      # the released one first, so that the merge only conflicts on real changes, and then goes
+      # back to the snapshot it was on.
       - name: Start the next snapshot on develop
         if: ${{ !inputs.dry_run }}
         env:
@@ -143,6 +150,9 @@ jobs:
           NEXT: ${{ steps.version.outputs.next }}
         run: |
           git switch develop
+          if [[ "$TYPE" == hotfix ]]; then
+            NEXT=$(./mvnw -q -N "$HELP_PLUGIN:evaluate" -Dexpression=project.version -DforceStdout)
+          fi
           if ! git merge-base --is-ancestor develop main; then
             ./mvnw -B -ntp "$VERSIONS_PLUGIN:set" -DnewVersion="$VERSION" -DgenerateBackupPoms=false
             git commit -am "[release] Align develop with $VERSION"
