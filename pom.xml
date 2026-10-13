@@ -118,6 +118,12 @@
              GPG signatures and the upload itself. Activate with -Prelease. -->
         <profile>
             <id>release</id>
+            <properties>
+                <!-- By default the upload stops after validation and is published by hand from the
+                     portal; the release workflow overrides both to publish unattended. -->
+                <central.autoPublish>false</central.autoPublish>
+                <central.waitUntil>validated</central.waitUntil>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -164,7 +170,7 @@
                         </executions>
                     </plugin>
                     <!-- Uploads to the Central Portal with the token stored in settings.xml under the
-                         server id "central". The deployment is then published by hand from the portal. -->
+                         server id "central". -->
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
@@ -172,6 +178,8 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>
+                            <autoPublish>${central.autoPublish}</autoPublish>
+                            <waitUntil>${central.waitUntil}</waitUntil>
                         </configuration>
                     </plugin>
                 </plugins>
