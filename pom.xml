@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
+         child.project.url.inherit.append.path="false"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -11,6 +12,7 @@
 
     <name>pipeline-parent</name>
     <description>Parent of the pipeline modules.</description>
+    <url>https://github.com/DifferenTilt/pipeline</url>
 
     <licenses>
         <license>
@@ -19,6 +21,21 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+
+    <developers>
+        <developer>
+            <name>Andrea Brambilla</name>
+            <url>https://github.com/DifferenTilt</url>
+        </developer>
+    </developers>
+
+    <scm child.scm.connection.inherit.append.path="false"
+         child.scm.developerConnection.inherit.append.path="false"
+         child.scm.url.inherit.append.path="false">
+        <connection>scm:git:https://github.com/DifferenTilt/pipeline.git</connection>
+        <developerConnection>scm:git:git@github.com:DifferenTilt/pipeline.git</developerConnection>
+        <url>https://github.com/DifferenTilt/pipeline</url>
+    </scm>
 
     <modules>
         <module>pipeline-core</module>
