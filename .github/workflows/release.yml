@@ -80,7 +80,7 @@ jobs:
           last=${last#v}
           last=${last:-0.0.0}
           version=$(.github/scripts/next-version.sh "$TYPE" "$last")
-          next=$(.github/scripts/next-version.sh hotfix "$version")-SNAPSHOT
+          next=$(.github/scripts/next-version.sh minor "$version")-SNAPSHOT
           if git rev-parse -q --verify "refs/tags/v$version" > /dev/null; then
             echo "::error::Tag v$version already exists."
             exit 1

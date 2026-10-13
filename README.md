@@ -71,8 +71,9 @@ release and computes the version from the latest `vX.Y.Z` tag:
 
 The workflow creates `release/X.Y.Z`, sets the version in the POMs and publishes to Maven Central
 with the `release` profile. Only if the publication succeeds, it merges the branch into `main`, tags
-it `vX.Y.Z`, deletes it, merges `main` back into `develop` and moves `develop` to the next
-`-SNAPSHOT`. If the publication fails the release branch is deleted and nothing else changes.
+it `vX.Y.Z`, deletes it, merges `main` back into `develop` and moves `develop` to the `-SNAPSHOT`
+of the next minor version (after 2.7.5 or 2.7.6, `2.8.0-SNAPSHOT`). If the publication fails the
+release branch is deleted and nothing else changes.
 
 Ticking **Dry run** builds the release without signing it, and pushes and publishes nothing.
 
