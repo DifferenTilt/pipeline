@@ -64,6 +64,27 @@ mvn verify
 
 The build compiles with `-Xlint:all` and fails on compiler warnings.
 
+## Releasing
+
+Releases are cut by the **Release** workflow, run by hand from the Actions tab. It takes the kind of
+release and computes the version from the latest `vX.Y.Z` tag:
+
+| Kind | Run it on | From 2.7.5 |
+|---|---|---|
+| `minor` | `develop` | 2.8.0 |
+| `major` | `develop` | 3.0.0 |
+| `hotfix` | a branch created from `main` that holds the fix | 2.7.6 |
+
+The workflow creates `release/X.Y.Z`, sets the version in the POMs and publishes to Maven Central
+with the `release` profile. Only if the publication succeeds, it merges the branch into `main`, tags
+it `vX.Y.Z`, deletes it, merges `main` back into `develop` and moves `develop` to the next
+`-SNAPSHOT`. If the publication fails the release branch is deleted and nothing else changes.
+
+Ticking **Dry run** builds the release without signing it, and pushes and publishes nothing.
+
+The workflow needs four repository secrets: `CENTRAL_USERNAME` and `CENTRAL_PASSWORD` (a Central
+Portal user token), `GPG_PRIVATE_KEY` (the armored private key) and `GPG_PASSPHRASE`.
+
 ## License
 
 Licensed under the [Apache License, Version 2.0](LICENSE).
