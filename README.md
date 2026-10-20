@@ -1,5 +1,8 @@
 # pipeline
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.differentilt/pipeline-core?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.differentilt/pipeline-core)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+
 A small Java library for running business logic as a sequence of named, configurable steps that
 share a context, plus a Spring Boot starter that wires it into an application.
 
